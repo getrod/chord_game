@@ -1,0 +1,7 @@
+__pycache__
+build
+external
+*.cpp
+*.h
+Makefile
+CMakeLists.txt
