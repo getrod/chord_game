@@ -5,3 +5,5 @@ external
 *.h
 Makefile
 CMakeLists.txt
+node_modules
+.env

@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+p {
+  text-align: center;
+  font-size: 60px;
+  margin-top: 0px;
+}
+</style>
+</head>
+<body>
+
+<p id="demo">0</p>
+
+<script>
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+    fetch('http://127.0.0.1:5000/chord').then(function (response) {
+	// The API call was successful!
+	return response.json();
+    }).then(function (data) {
+        // This is the JSON from our response
+        console.log(data);
+    }).catch(function (err) {
+        // There was an error
+        console.warn('Something went wrong.', err);
+    });
+
+    var num = parseInt(document.getElementById("demo").innerHTML)
+    if (!num) {
+        document.getElementById("demo").innerHTML = '0'
+    }
+    
+    document.getElementById("demo").innerHTML = num + 1
+    
+}, 100);
+
+/*
+initial template:
+https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_countdown
+*/
+
+</script>
+
+</body>
+</html>

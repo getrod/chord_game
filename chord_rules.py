@@ -22,6 +22,10 @@ chord_types = [
         'formula': {'1', '3', '5', '7'},
     },
     {
+        'name': 'dom',
+        'formula': {'1', '3', '5', 'b7'},
+    },
+    {
         'name': 'min7',
         'formula': {'1', 'b3', '5', 'b7'},
     },
@@ -188,10 +192,10 @@ def findChordsAmbiguous(notes: list[m21.note.Note]) -> list[dict]:
 def chordToString(chord: dict):
     if chord['key']:
         s = chord['key'] + chord['type']['name']
-        if chord['voice']:
+        if 'voice' in chord:
             s += ' (' + chord['voice']['name'] + ')'
         return s
-    return str(chord['notes'])
+    return str(chord['notes'])  
 
 
 def chordsToString(chords: list[dict]):

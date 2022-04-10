@@ -4,12 +4,13 @@ from instrument import Instrument
 from chord_rules import *
 
 
-class ChordInterpreter(Listener):
+class ChordInterpreter(Listener, Provider):
     def __init__(self, instrument : Instrument):
         self.instrument = instrument
         # subscribe to the instrument 
         # for state changes
         self.instrument.subscribe(self)
+        super().__init__()
 
 
     def on_callback(self, message):
@@ -56,8 +57,7 @@ class ChordInterpreter(Listener):
         if len(chords) > 0:
             print(chordsToString(chords))
         
-
-        
+        self.update_listeners(chords)
         # numbers_res = notesToNumbers('c' , note_names) # TODO: Change this assumption
         
         # print("Numbers: " + str(numbers_res))  
