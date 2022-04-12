@@ -1,15 +1,7 @@
 import requests
 from observer import Listener
 import json
-import socketio
-
-sio = socketio.Client()
-sio.connect('http://localhost:3000')
-
-def set_default(obj):
-    if isinstance(obj, set):
-        return list(obj)
-    raise TypeError
+from my_socket import *
 
 class ChordClient(Listener):
     def __init__(self, chord_interpreter):
@@ -17,5 +9,5 @@ class ChordClient(Listener):
 
     def on_callback(self, message):
         print(message)
-        sio.emit('chord', json.dumps(message, default=set_default))
+        sio.emit('on question', json.dumps(message, default=set_default))
         # requests.post('http://127.0.0.1:5000/chord', json=json.dumps(message, default=set_default))
