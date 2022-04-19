@@ -31,13 +31,17 @@ chord_types = [
         'formula': {'1', 'b3', '5', 'b7'},
     },
     {
-        'name': 'maj add2',
-        'alt': 'maj add9',
+        'name': 'm9',
+        'formula': {'1', 'b3', '5', 'b7', '9'},
+    },
+    {
+        'name': 'maj add9',
+        'alt': 'maj add2',
         'formula': {'1', '2', '3', '5'},
     },
     {
-        'name': 'm add2',
-        'alt': 'm add9',
+        'name': 'm add9',
+        'alt': 'm add2',
         'formula': {'1', '2', 'b3', '5'},
     },
     {
