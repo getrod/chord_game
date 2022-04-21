@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+    text-align: center;
+}
+
+.chord-type {
+  font-size: 5rem;
+  color: rgb(10, 0, 97);
+}
+
+.voice {
+    font-size: 3rem; 
+    color: rgb(61, 61, 61);
+    font-weight: lighter;
+}
+
+@keyframes correct {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+        color: green;
+        size: 6rem;
+    }
+}
+
+.green-shake {
+    animation: correct 0.50s ease-in-out;
+}
+
+</style>
+</head>
+<body>
+
+<button id="skip">Skip</button>
+<a href="/chord_numbers_game_settings.html" > Settings </a> 
+<h1 id="key"></h1>
+<h1 class="chord-type" id="chord-type">Game!</h1>
+<p id="score"></p>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+
+    socket.on('question', function(question) {
+      console.log(question)
+      // end animation
+      document.getElementById("chord-type").classList.remove("green-shake")
+      let key_msg = 'Key: ' + question['key']
+      let chord_msg = question['chord_number']
+      
+      document.getElementById("key").innerHTML = key_msg
+      document.getElementById("chord-type").innerHTML = chord_msg
+    });
+
+    socket.on('score', function(score_) {
+      const score = JSON.parse(score_)
+      const answerChord = score['answer']
+      var score_msg = 'Score: ' + answerChord['key'] 
+          + answerChord['type']['name'] + ' - ' + score['time']
+      let chordName = answerChord['key'] + answerChord['type']['name']
+      document.getElementById("score").innerHTML = score_msg
+      document.getElementById("chord-type").innerHTML += ' (' + chordName + ')'
+      // start 'correct' animation
+      document.getElementById("chord-type").classList.add("green-shake")
+    });
+
+    document.getElementById('skip').onclick = () => socket.emit('get question');
+
+    socket.emit('get question');
+
+
+
+</script>
+
+</body>
+</html>

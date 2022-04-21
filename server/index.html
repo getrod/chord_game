@@ -3,9 +3,6 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body {
-    text-align: center;
-}
 
 .chord-type {
   font-size: 5rem;
@@ -26,30 +23,10 @@ body {
 </head>
 <body>
 
-<h1 class="chord-type" id="chord-type">Play a chord!</h1>
-<p class="notes" id="notes">Chord</p>
-<p class="voice" id="voice"> Voice </p>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    var socket = io();
-
-    socket.on('chord', function(chords) {
-        const chord = JSON.parse(chords)[0]
-        console.log(typeof chords)
-        var chord_msg = 'Unknown Chord'
-        var voice_msg = 'Unkown Voice'
-        if (chord['key']) {
-            chord_msg = chord['key'] + chord['type']['name']
-        }
-        if (chord['voice']) {
-            voice_msg = 'voice: ' + chord['voice']['name']
-        }
-        document.getElementById("chord-type").innerHTML = chord_msg
-        document.getElementById("notes").innerHTML = chord['notes']
-        document.getElementById("voice").innerHTML = voice_msg
-    });
-</script>
+<h1 id="chord-type" >Chord Game</h1>
+<div><a href="/random_game_settings.html" > Random Chords Game </a> </div>
+<div><a href="/chord_numbers_game_settings.html" > Chord Numbers Game </a></div>
+ 
 
 </body>
 </html>

@@ -13,6 +13,9 @@ from client import ChordClient
 from question import ChordQuestion
 from validator import Validator
 from chord_answer import ChordAnswer
+from random_chord_game import RandomChordGame
+from chord_numbers_game import ChordNumberGame
+import my_socket
 
 log = logging.getLogger('midiin_callback')
 logging.basicConfig(level=logging.DEBUG)
@@ -28,18 +31,23 @@ except (EOFError, KeyboardInterrupt):
 instrument = Instrument()
 midi_provider.subscribe(instrument)
 chord_interpreter = ChordInterpreter(instrument)
-# client = ChordClient(chord_interpreter)
 
 
-chordQuestion = ChordQuestion()
-# adds an 'a' infront of chord interpreter
-# its a listener to chord interpreter, and a provider to validator
-chordAnswer = ChordAnswer() 
-chord_interpreter.subscribe(chordAnswer)
+chord_number_game = ChordNumberGame()
+chord_interpreter.subscribe(chord_number_game)
 
-validator = Validator()
-chordQuestion.subscribe(validator)
-chordAnswer.subscribe(validator)
+random_game = RandomChordGame()
+chord_interpreter.subscribe(random_game)
+
+@my_socket.sio.on('random game')
+def on_random_game(data):
+    print('now playing: random chord game')
+    random_game.register_socket_handlers()
+
+@my_socket.sio.on('number game')
+def on_number_game(data):
+    print('now playing: chord number game')
+    chord_number_game.register_socket_handlers()
 
 print("Attaching MIDI input callback handler.")
 midi_provider.register_midiin(midiin, port_name)

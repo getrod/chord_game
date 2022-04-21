@@ -19,11 +19,15 @@ chord_types = [
         'formula': {'1', '4', '5'},
     },
     {
+        'name': 'dim',
+        'formula': {'1', 'b3', 'b5'},
+    },
+    {
         'name': 'maj7',
         'formula': {'1', '3', '5', '7'},
     },
     {
-        'name': '7',
+        'name': 'dom7',
         'formula': {'1', '3', '5', 'b7'},
     },
     {
@@ -32,7 +36,7 @@ chord_types = [
     },
     {
         'name': 'm9',
-        'formula': {'1', 'b3', '5', 'b7', '9'},
+        'formula': {'1', 'b3', '5', 'b7', '2'},
     },
     {
         'name': 'maj add9',
@@ -99,6 +103,45 @@ note_names =    [m21.note.Note('C'), m21.note.Note('C#'), m21.note.Note('D'),
                 m21.note.Note('A'), m21.note.Note('B-'), m21.note.Note('B')]
 note_numbers =  ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', '#5', '6', 'b7', '7']
 
+chord_numbers = [
+    {
+        'number': '1',
+        'roman': 'I',
+        'chord_name': 'maj'
+    },
+    {
+        'number': '2',
+        'roman': 'ii',
+        'chord_name': 'm'
+    },
+    {
+        'number': '3',
+        'roman': 'iii',
+        'chord_name': 'm'
+    },
+    {
+        'number': '4',
+        'roman': 'IV',
+        'chord_name': 'maj'
+    },
+    {
+        'number': '5',
+        'roman': 'V',
+        'chord_name': 'maj'
+    },
+    {
+        'number': '6',
+        'roman': 'vi',
+        'chord_name': 'm'
+    },
+    {
+        'number': '7',
+        'roman': 'vii',
+        'chord_name': 'dim'
+    },
+]
+
+
 note_num_sort_key = lambda note_num: note_numbers.index(note_num)
 note_sort_key = lambda note: note.pitches[0].midi
 
@@ -151,7 +194,7 @@ def numberToNote(key: str, number: str):
     key_ = m21.note.Note(key)
     offset = note_names.index(key_)
     number_idx = note_numbers.index(number)    
-    return note_names[(number_idx - offset) % len(note_names)]
+    return note_names[(number_idx + offset) % len(note_names)]
 
 # get notes from key and chord numbers
 def numbersToNotes(key, numbers: set[str]):
@@ -240,6 +283,14 @@ def getRandomChord(voice=False):
             voice_rule = random.choice(filtered_voices)
     notes = numbersToNotes(key, chord_type['formula'])
     return Chord(key=key, notes=notes, type=chord_type, voice=voice_rule)
+
+
+def findChordFromChordNumber(key: str, number: str):
+    chord_number = list(filter(lambda chord_number: chord_number['number'] == number, chord_numbers))[0]
+    chord_type_ = list(filter(lambda chord_type: chord_type['name'] == chord_number['chord_name'], chord_types))[0]
+    chord_key = numberToNote(key, number).name
+    notes = numbersToNotes(chord_key, chord_type_['formula'])
+    return Chord(key=chord_key, notes=notes, type=chord_type_)
 
 # combine: { major, minor } & { add2, add6, add9 } 
 # Note to self: What I'm looking for in this file is 
