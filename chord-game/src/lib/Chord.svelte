@@ -31,7 +31,7 @@
     export function notesToString(notes) {
 		let s = '['
 		if (notes.size > 0) {
-			notes.forEach(note => s += ` ${noteName(note)},`)
+			notes.forEach(note => s += ` ${noteName(note)}${noteOctave(note)},`)
 		}
 		s += ']'
 		return s

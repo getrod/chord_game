@@ -3,7 +3,8 @@
 	import { chordFormulas, noteNames, chordInterpreter, notesToString } from '../lib/Chord.svelte';
 
 	$: midi = []
-	$: notes = new Set()
+	let notes = new Set()
+	$: noteString = ''
 	$: chord = []
 
 	function handleMidi(event) {
@@ -13,7 +14,9 @@
 		if (midi_event == 'note_on') notes.add(note)
 		else notes.delete(note)
 
-		console.log(notesToString(notes))
+		noteString = notesToString(notes)
+
+		console.log(noteString)
 
 		chord = chordInterpreter(notes)
 	}
@@ -23,4 +26,5 @@
 <h1>Chord Game</h1>
 <MidiListener on:midi={handleMidi}/>
 <p>{midi.midi_event} {midi.note} {midi.velocity}</p>
+<p>{noteString}</p>
 <p>{chord}</p>
