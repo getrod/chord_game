@@ -1,20 +1,26 @@
 <script>
-	import io from 'socket.io-client';
-
-	const socket = io('http://localhost:3000');
+	import MidiListener from '../lib/MidiListener.svelte';
+	import { chordFormulas, noteNames, chordInterpreter, notesToString } from '../lib/Chord.svelte';
 
 	$: midi = []
+	$: notes = new Set()
+	$: chord = []
 
-	socket.on('midi_event', (midi_event) => {
-		midi = midi_event;
-	});
+	function handleMidi(event) {
+		let { midi_event, note, velocity } = event.detail.midi
+		midi = event.detail.midi;
+		
+		if (midi_event == 'note_on') notes.add(note)
+		else notes.delete(note)
 
-	function sendMessage() {
-		socket.emit('chat message', message);
-		message = '';
+		console.log(notesToString(notes))
+
+		chord = chordInterpreter(notes)
 	}
+
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation tehehe</p>
-<p>{midi}</p>
+<h1>Chord Game</h1>
+<MidiListener on:midi={handleMidi}/>
+<p>{midi.midi_event} {midi.note} {midi.velocity}</p>
+<p>{chord}</p>

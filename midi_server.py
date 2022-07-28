@@ -4,7 +4,7 @@ import logging
 import socketio
 import time
 import sys
-from rtmidi import (midiutil, MidiIn)
+from rtmidi import (midiutil, MidiIn, midiconstants)
 
 log = logging.getLogger('midiin_callback')
 logging.basicConfig(level=logging.DEBUG)
@@ -14,8 +14,19 @@ midiin = MidiIn()
         
 def midi_callback(event, data=None):
     message, deltatime = event
-    print(message)
-    sio.emit('midi_event', message)
+    if message[0] == midiconstants.NOTE_ON \
+    and message[2] != 0:
+        midi_event = 'note_on'
+    else:
+        midi_event = 'note_off'
+
+    midi = {
+        'midi_event': midi_event,
+        'note': message[1],
+        'velocity': message[2]
+    }
+
+    sio.emit('midi_event', midi)
 
 sio.on('get_midi_ports')
 def on_get_midi_ports():
