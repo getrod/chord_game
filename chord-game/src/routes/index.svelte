@@ -1,6 +1,7 @@
 <script>
 	import MidiListener from '../lib/MidiListener.svelte';
 	import { chordFormulas, noteNames, chordInterpreter, notesToString } from '../lib/Chord.svelte';
+	import { chordGeneratorRandom } from '../lib/ChordSequence.svelte';
 
 	$: midi = []
 	let notes = new Set()

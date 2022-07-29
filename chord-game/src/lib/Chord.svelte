@@ -16,6 +16,22 @@
             name: 'sus4',
             intervals: [0, 5, 7]
         },
+        {
+            name: 'maj7',
+            intervals: [0, 4, 7, 11]
+        },
+        {
+            name: 'm7',
+            intervals: [0, 3, 7, 10]
+        },
+        {
+            name: 'maj9',
+            intervals: [0, 2, 4, 7, 11]
+        },
+        {
+            name: 'm9',
+            intervals: [0, 2, 3, 7, 10]
+        },
     ]
 
     export const noteNames = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']
@@ -50,7 +66,6 @@
 				if (tempSet[i] < 0) tempSet[i] += 12 
 			})
 			tempSet.sort()
-			
 			chordFormulas.forEach((chordFormula) => {
 				let set1 = new Set(chordFormula.intervals)
 				let set2 = new Set(tempSet)
