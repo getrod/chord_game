@@ -78,4 +78,20 @@
 		
 		return chords
 	}
+
+    /**
+     * Takes an array of note numbers and returns
+     * @param notes: note numbers
+     * @param chord: ex: 'F#maj' 
+     */
+    export function chordMatch(notes, chord) {
+        let chordNames = chordInterpreter(notes)
+        let match = false
+        chordNames.forEach((chordName) => {
+            if (chordName === chord) {
+                match = true
+            }
+        })
+        return match
+    }
 </script>

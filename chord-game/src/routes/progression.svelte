@@ -5,20 +5,18 @@
     import { chordMatch } from '../lib/Chord.svelte'
     import ActiveNotes from '../lib/ActiveNotes.svelte'
 
-    $: chordSequence = chordGeneratorRandom(12)
+    $: chordSequence = []
     let sequenceIndex = 0
     let notes = []
+    let chordProgStr = "[1]-maj [4]-maj [5]-maj"
+    let keysStr = "0"
 
-    function handleClick() {
-        // reset game
-        chordSequence = chordGeneratorRandom(12)
-        sequenceIndex = 0
+    function handleClick(e) {
+        chordSequence = getChordProgression(chordProgStr, parseInt(keysStr))
     }
 
     function handleNoteEvent(e) {
-        // if sequence over, no checking
         if (chordSequence.length == 0 || sequenceIndex >= chordSequence.length) return
-
         notes = e.detail.activeNotes
         if (chordMatch(notes, chordSequence[sequenceIndex].name)) {
             sequenceIndex++
@@ -27,7 +25,23 @@
 
 </script>
 
-<h1>Random Chord</h1>
+
 <ActiveNotes on:note={handleNoteEvent}/>
+<h1>Chord Progression</h1>
 <ChordSequence chordSequence={addKeysToChordSequence(chordSequence)} {sequenceIndex}/>
-<button on:click={handleClick}> New Game </button>
+
+<form class="content">
+    <label for='prog'>Progression Formula</label>
+    <input type="text" bind:value={chordProgStr} placeholder="ex: [1]-maj [4]-maj [5]-maj"/>
+    <label for='prog'>Keys</label>
+    <input type="text" bind:value={keysStr} placeholder="ex: 0 for key 'C'"/>
+  </form>
+<button on:click={handleClick}>Play</button>
+
+<style>
+    .content {
+      display: grid;
+      grid-column-gap: 10px;
+      padding: 0% 20% 0% 0%;
+    }
+</style>

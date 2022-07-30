@@ -1,3 +1,5 @@
+<!-- Change name of file to RandomGenerator -->
+<!-- Or remove this and put it in chord progression -->
 <script context="module">
     import { chordFormulas, noteNames } from './Chord.svelte';
     export function chordGeneratorRandom(length) {
@@ -8,7 +10,6 @@
             let randomChord = chordFormulas[Math.floor(Math.random() * chordFormulas.length)].name
             randomChords[i] = randomNote + randomChord
         }
-
         return randomChords
     }
 </script>
