@@ -12,7 +12,16 @@
     let keysStr = "0"
 
     function handleClick(e) {
-        chordSequence = getChordProgression(chordProgStr, parseInt(keysStr))
+        sequenceIndex = 0
+        chordSequence = []
+        let keys = keysStr.split(',')
+        console.log(keys)
+        keys.forEach((key) => {
+            let chords = getChordProgression(chordProgStr, parseInt(key))
+            chordSequence = chordSequence.concat(chords)
+            console.log(chordSequence)
+        })
+        
     }
 
     function handleNoteEvent(e) {

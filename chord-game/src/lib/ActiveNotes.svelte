@@ -7,8 +7,17 @@
     
 	function handleMidi(event) {
 		let { midi_event, note, velocity } = event.detail.midi;
-		if (midi_event == 'note_on') notes.add(note);
-		else notes.delete(note);
+		if (midi_event == 'note_on') {
+			notes.add(note);
+			dispatch('noteAdd', {
+            	activeNotes: notes
+        	});
+		} else {
+			notes.delete(note);
+			dispatch('noteRemove', {
+            	activeNotes: notes
+        	});
+		}
 
         dispatch('note', {
             activeNotes: notes

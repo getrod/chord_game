@@ -41,7 +41,7 @@ def on_select_midi_port(port):
     sio.emit('is_port_open', midiin.is_port_open())
 
 try:
-    midiin, port_name = midiutil.open_midiinput(0)
+    midiin, port_name = midiutil.open_midiinput()
 except (EOFError, KeyboardInterrupt):
     sys.exit()
 
