@@ -31,7 +31,7 @@
 	let highestNote = 96;
 	const intervalRange = 20;
 	let rangeStartNote = 60;
-	let chord = chordGeneratorRandom(1)[0];
+	let chord = '';
 	let score = 0;
 	const randomNumSuccess = () => Math.floor(Math.random() * 5) + 5;
 	let numSuccess = randomNumSuccess();
@@ -47,6 +47,8 @@
 
 	let chordFilterStr = '';
 	let keyFilterStr = '';
+    let keyFilter = [];
+    let chordFilter = [];
 	let gameStart = false;
     let scorePage = false
     let intervalFunc
@@ -59,8 +61,8 @@
 	});
 
 	function handlePlayGame() {
-		let chordFilter = chordFilterStr.replace(/\s+/g, '').split(',');
-		let keyFilter = keyFilterStr.replace(/\s+/g, '').split(',');
+		chordFilter = chordFilterStr.replace(/\s+/g, '').split(',');
+		keyFilter = keyFilterStr.replace(/\s+/g, '').split(',');
 		keyFilter.forEach((key, index) => (keyFilter[index] = noteName(key)));
 
 		if (chordFilterStr.trim() === '') chordFilter = null;
@@ -71,6 +73,7 @@
         timerString = '';
         timerCounter = 0;
         timerProgress.set(0)
+        progress.set(0);
         score = 0
 
         if (intervalFunc) {
@@ -134,7 +137,7 @@
 			successCounter--;
 			if (successCounter === 0) {
 				// get new chord
-				chord = chordGeneratorRandom(1)[0];
+				chord = chordGeneratorRandom(1, keyFilter, chordFilter)[0];
 				numSuccess = randomNumSuccess();
 				successCounter = numSuccess;
 			}

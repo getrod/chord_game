@@ -61,7 +61,6 @@
 		notes = e.detail.activeNotes;
 		if (chordMatch(notes, chordSequence[0].name)) {
 			chordSequence = chordSequence.slice(1);
-            console.log(infinite)
             if (infinite) {
                 chordSequence.push({id: chordSequence[chordSequence.length - 1].id + 1, 
                     name: chordGeneratorRandom(1, keyFilter, chordFilter)[0]})
