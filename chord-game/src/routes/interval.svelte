@@ -111,6 +111,7 @@
 	}
 
 	function handleOnNote(e) {
+        if (!gameStart) return
 		activeNotes = Array.from(e.detail.activeNotes);
 		let validRange = true;
 		activeNotes.forEach((note) => {
