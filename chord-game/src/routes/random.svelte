@@ -115,10 +115,6 @@
 				// if elapsed time less than 60 seconds
 				console.log(elapsed);
 				elapsedTimes.push(elapsed);
-				if (infinite && elapsedTimes.length === 11) {
-					// remove old results to get concurrent average speed
-					elapsedTimes = elapsedTimes.slice(1);
-				}
 				let sum = elapsedTimes.reduce((prev, t) => prev + t, 0) / 1000;
 				let averageElapse = sum / elapsedTimes.length;
 				console.log(`averageElapse: ${averageElapse}`);

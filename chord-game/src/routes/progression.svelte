@@ -20,6 +20,14 @@
 	function handlePlayGame(e) {
 		chordSequence = [];
 		let keys = keysStr.split(',');
+		if (keysStr === '') {
+			let keysArray = Array.from(Array(12).keys())
+			keys = Array(12)
+			console.log(keysArray.splice(Math.floor(Math.random * keysArray.length)))
+			keys.forEach((_, index) =>
+			 keys[index] = keysArray.splice(Math.floor(Math.random * keysArray.length)))
+			
+		}
 		keys.forEach((key) => {
 			let chords = getChordProgression(chordProgStr, parseInt(key));
 			chordSequence = chordSequence.concat(chords);

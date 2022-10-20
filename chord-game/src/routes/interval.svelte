@@ -33,7 +33,7 @@
 	let rangeStartNote = 60;
 	let chord = '';
 	let score = 0;
-	const randomNumSuccess = () => Math.floor(Math.random() * 5) + 5;
+	const randomNumSuccess = () => Math.floor(Math.random() * 5) + 5; // 5-10
 	let numSuccess = randomNumSuccess();
 	let successCounter = numSuccess;
 	let jumpSpeed = 3;
@@ -150,7 +150,7 @@
 
 {#if gameStart}
 	<div style="display: flex; justify-content: space-between; padding: 0 20% 10px 20%">
-		<h1 class="chord">{chord}</h1>
+		<span><h1 class="chord">{chord}</h1> <p>{successCounter}</p> </span>
 		<h1>Score {score}</h1>
 	</div>
 	<ActiveNotes on:note={handleOnNote} />
