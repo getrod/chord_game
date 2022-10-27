@@ -1,14 +1,6 @@
 <script>
-    import { onMount } from "svelte";
-
-
-    export let chordSequence = []
-    export let sequenceIndex = 0
-
-    onMount(() => {
-        // should use typescript
-        sequenceIndex = parseInt(sequenceIndex)
-    })
+    import { flip } from 'svelte/animate';
+    export let chordSequence
 </script>
 
 <style>
@@ -18,19 +10,16 @@
         flex-wrap: wrap;
 	}
     
-    p {
-        margin: 20px;
-    }
+    .chord-text {
+		text-align: center;
+		padding: 0 10px 0 10px;
+	}
 </style>
 
 <div class="chord-sequence">
-{#each chordSequence as chord (chord.id)}
-    {#if chord.id < sequenceIndex}
-        <p style="color: #a6a4a4;">{chord.name}</p>
-    {:else if chord.id == sequenceIndex}
-        <p style="color: green;">{chord.name}</p>
-    {:else}
-        <p>{chord.name}</p>
-    {/if}
-{/each}
+    {#each chordSequence as chord, i (chord.id)}
+        <div animate:flip class="chord-card" style={i === 0 ? 'background-color: green;' : ''}>
+            <p class="chord-text" style={i === 0 ? 'color: white;' : ''}>{chord.data}</p>
+        </div>
+    {/each}
 </div>
