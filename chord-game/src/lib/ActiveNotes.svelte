@@ -9,13 +9,13 @@
 		let { midi_event, note, velocity } = event.detail.midi;
 		if (midi_event == 'note_on') {
 			notes.add(note);
-			dispatch('noteAdd', {
-            	activeNotes: notes
+			dispatch('add_note', {
+            	note: note
         	});
 		} else {
 			notes.delete(note);
-			dispatch('noteRemove', {
-            	activeNotes: notes
+			dispatch('remove_note', {
+            	note: note
         	});
 		}
 
