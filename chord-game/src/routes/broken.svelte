@@ -1,25 +1,24 @@
 <script>
 	import { onMount } from "svelte";
     import ChordSequence from "../component/ChordSequence.svelte";
-	import { chordGeneratorRandom } from "../lib/ChordSequence.svelte"; //TODO: DEBUG!!!!
     import MidiListener from "../lib/MidiListener.svelte";
 	import { addKeysToArray, MIDI_MESSAGE } from "../lib/Util.svelte";
+	import { notesMatch } from "../lib/Validate.svelte";
 
     let notes = new Set();
-    let chordSequence = [];
+    let sequence = addKeysToArray([[62, 67], [71], [74, 79], [76]]);
 
     onMount(() => {
-        chordSequence = chordGeneratorRandom(6);
-        addKeysToArray(chordSequence);
+        console.log(sequence)
     })
 
     /**
-     * Add and remove notes from notes set
+     * Add and remove notes from notes set &
+     * checks in notes match the sequence
      * @param e
      */
     function handleMidi(e) {
         
-        console.log(chordSequence)
         let { midi_event, note, velocity } = e.detail.midi;
         if (midi_event === MIDI_MESSAGE.on) {
             notes.add(note);
@@ -27,17 +26,23 @@
             notes.delete(note);
         }
 
-        chordSequence = chordSequence.slice(1)
+        match()
+    }
 
+    function match() {
+        if (notesMatch(new Set(sequence[0].data), notes)) {
+            // remove the beginning element 
+            sequence = sequence.slice(1);
+        }
     }
 
 </script>
 
 
-<h1>Broken Chords</h1>
+<h1>Broken Chord</h1>
 
 <MidiListener on:midi={handleMidi} />
 
-<ChordSequence chordSequence={chordSequence}></ChordSequence>
+<ChordSequence chordSequence={sequence}></ChordSequence>
 
 
