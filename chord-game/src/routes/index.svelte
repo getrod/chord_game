@@ -1,5 +1,5 @@
 <script>
-	import MidiListener from '../lib/MidiListener.svelte';
+	import MidiListener from '../component/MidiListener.svelte';
 	import { chordInterpreter, notesToString } from '../lib/Chord.svelte';
 
 

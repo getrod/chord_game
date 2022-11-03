@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte';
-	import MidiListener from './MidiListener.svelte';
+	import MidiListener from '../component/MidiListener.svelte';
 
     const dispatch = createEventDispatcher();
 	let notes = new Set();

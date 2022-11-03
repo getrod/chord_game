@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from "svelte";
     import ChordSequence from "../component/ChordSequence.svelte";
-    import MidiListener from "../lib/MidiListener.svelte";
+    import MidiListener from "../component/MidiListener.svelte";
 	import { addKeysToArray, MIDI_MESSAGE } from "../lib/Util.svelte";
 	import { notesMatch } from "../lib/Validate.svelte";
 
