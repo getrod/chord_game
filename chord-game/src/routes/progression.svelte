@@ -3,7 +3,7 @@
 	import { chordGeneratorRandom } from '../lib/ChordSequence.svelte';
 	import { getChordProgression, addKeysToChordSequence } from '../lib/ChordProression.svelte';
 	import { chordMatch } from '../lib/Chord.svelte';
-	import ActiveNotes from '../lib/ActiveNotes.svelte';
+	import ActiveNotes from '../component/ActiveNotes.svelte';
     import { flip } from 'svelte/animate';
 
 	$: chordSequence = [];

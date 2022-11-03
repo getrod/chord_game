@@ -44,5 +44,3 @@
 <MidiListener on:midi={handleMidi} />
 
 <ChordSequence chordSequence={sequence}></ChordSequence>
-
-
