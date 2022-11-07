@@ -10,7 +10,7 @@
 	 * Game lasts 3 minutes
 	 */
 	import { chordMatch, noteName } from '../lib/Chord.svelte';
-	import { chordGeneratorRandom } from '../lib/ChordSequence.svelte';
+	import { chordGeneratorRandom } from '../lib/RandomChords.svelte';
 	import ActiveNotes from '../component/ActiveNotes.svelte';
 	import { onMount } from 'svelte';
 	import { addKeysToArray } from '../lib/Util.svelte';
