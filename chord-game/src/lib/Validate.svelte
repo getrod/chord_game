@@ -1,5 +1,5 @@
 <script context="module" >
-    import { isSetEqual } from './Math.svelte'
+    import { isSetEqual } from './MathUtil.svelte'
     import { noteNames, chordFormula } from './Chord.svelte'
     /**
      * Checks if two sets of notes are equal.
@@ -41,5 +41,32 @@
         } 
 
         return match
+    }
+    
+    /**
+     * Converts notes on a grid to notes on
+     * the chromatic scale.
+     * 
+     * Ex: Given a C#maj grid (csGrid = {1, 5, 8}), and grid notes 
+     * (csNotes = {15, 16, 17}) denoting the 15th, 16th, and 17th 
+     * notes in the grid, the chromatic notes can be found by:
+     * 
+     * gridToChromatic(csGrid, csNotes) -> {61, 65, 68}
+     *                 
+     * @param {Set<number>} grid
+     * @param {Set<number>} gridNotes
+     * @returns {Set<number>} chromaticNotes
+     */
+    export function gridToChromatic(grid, gridNotes) {
+        let chromaticNotes = new Set();
+        let _grid = Array.from(grid).sort((a, b) => a-b)
+
+        gridNotes.forEach((gridNote) => {
+            // find the corresponding chromatic note to this grid
+            let note = _grid[(gridNote % _grid.length)] + 12 * Math.floor(gridNote / _grid.length)
+            chromaticNotes.add(note)
+        })
+
+        return chromaticNotes
     }
 </script>

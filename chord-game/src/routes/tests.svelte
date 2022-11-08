@@ -1,13 +1,13 @@
 <script>
 	import { onMount } from 'svelte';
-	import { isSetEqual } from '../lib/Math.svelte';
-    import { chordMatch } from '../lib/Validate.svelte';
+	import { isSetEqual } from '../lib/MathUtil.svelte';
+    import { chordMatch, gridToChromatic } from '../lib/Validate.svelte';
 
     function test(condition, message) {
         console.log(`${condition ? 'PASS' : 'FAIL'}: ${message}`)
     }
 
-    ////////////    TEST    ////////////////
+    ////////////    TESTS    ////////////////
 
 	function set_is_equal_test() {
 		test(isSetEqual(new Set([67, 72]), new Set([67, 72])) === true, "set equality");
@@ -32,8 +32,31 @@
             ) 
     }
 
+    function grid_to_chromatic_test() {
+        let grids = new Map();
+        grids.set('Am', new Set([9, 12, 16]))
+        grids.set('Em7', new Set([14, 11, 7, 4]))
+
+
+        test(
+            isSetEqual(gridToChromatic(grids.get('Am'), new Set([0])), new Set([9])),
+            'Am<[0]> === {9}' 
+        )
+
+        test(
+            isSetEqual(gridToChromatic(grids.get('Am'), new Set([3])), new Set([21])),
+            'Am<[3]> === {21}' 
+        )
+
+        test(
+            isSetEqual(gridToChromatic(grids.get('Em7'), new Set([3, 5])), new Set([14, 19])),
+            'Em7<[3, 5]> === {14, 19}' 
+        )
+    }
+
     onMount(() => {
         set_is_equal_test()
         chord_match_test()
+        grid_to_chromatic_test()
     })
 </script>
