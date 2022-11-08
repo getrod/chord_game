@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { isSetEqual } from '../lib/MathUtil.svelte';
+	import { isSetEqual, setAdd } from '../lib/MathUtil.svelte';
     import { chordMatch, gridToChromatic } from '../lib/Validate.svelte';
 
     function test(condition, message) {
@@ -54,9 +54,22 @@
         )
     }
 
+    function set_add_test() {
+        test(
+            isSetEqual(setAdd(new Set([4,5,6]), 1), new Set([5,6,7])),
+            '{4,5,6} + 1 === {5,6,7}'
+        )
+
+        test(
+            !isSetEqual(setAdd(new Set([4,5,6]), 1), new Set([6,7,8])),
+            '{4,5,6} + 1 !== {6,7,8}'
+        )
+    }
+
     onMount(() => {
         set_is_equal_test()
         chord_match_test()
         grid_to_chromatic_test()
+        set_add_test()
     })
 </script>

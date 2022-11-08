@@ -13,5 +13,21 @@
         return result;
     }
 
+    /**
+     * Adds all the elements in set s
+     * by the number num
+     * 
+     * Ex: setAdd({4,5,6}, 1) = {5,6,7}
+     * @param {Set<number>} s
+     * @param {number} num
+     */
+    export function setAdd(s, num) {
+        let newS = new Set();
+        s.forEach((oldNum) => {
+            newS.add(oldNum + num)
+        })
+        return newS;
+    }
+
     
 </script>
