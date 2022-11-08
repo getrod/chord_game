@@ -7,6 +7,7 @@
 	let notes = new Set()
 	$: noteString = ''
 	$: chord = []
+	let midiNotesDisplay = []
 
 	function handleMidi(event) {
 		let { midi_event, note, velocity } = event.detail.midi
@@ -20,6 +21,7 @@
 		console.log(noteString)
 
 		chord = chordInterpreter(notes)
+		midiNotesDisplay = Array.from(notes)
 	}
 
 </script>
@@ -28,4 +30,5 @@
 <MidiListener on:midi={handleMidi}/>
 <p>{midi.midi_event} {midi.note} {midi.velocity}</p>
 <p>{noteString}</p>
+<p>{midiNotesDisplay}</p>
 <p>{chord}</p>
