@@ -1,4 +1,7 @@
 <script context="module">
+    /**
+     * TODO: Depricate?
+     */
     export const chordFormulas = [
         {
             name: 'maj',
@@ -33,6 +36,18 @@
             intervals: [0, 2, 3, 7, 10]
         },
     ]
+
+    /**
+     * @type {Map<string, Array<number>>}
+     */
+    export const chordFormula = new Map();
+    chordFormula.set('maj',  [0, 4, 7])
+    chordFormula.set('m',  [0, 3, 7])
+    chordFormula.set('sus2',  [0, 2, 7])
+    chordFormula.set('sus4',  [0, 5, 7])
+    chordFormula.set('maj7',  [0, 4, 7, 11])
+    chordFormula.set('maj9',  [0, 2, 4, 7, 11])
+    chordFormula.set('m9',  [0, 2, 3, 7, 10])
 
     export const noteNames = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']
 
