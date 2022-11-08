@@ -38,6 +38,7 @@
     ]
 
     /**
+     * TODO: Rename to gridFormula?
      * @type {Map<string, Array<number>>}
      */
     export const chordFormula = new Map();
@@ -54,6 +55,10 @@
     export function noteName(noteNumber) {
 		return noteNames[noteNumber % noteNames.length]
 	}
+
+    export function noteNumber(noteName) {
+        return noteNames.findIndex(_noteName => _noteName === noteName)
+    }
 
 	export function noteOctave(noteNumber) {
 		return Math.trunc(noteNumber / noteNames.length)
