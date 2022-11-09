@@ -20,6 +20,7 @@
      * Ex: setAdd({4,5,6}, 1) = {5,6,7}
      * @param {Set<number>} s
      * @param {number} num
+     * @returns {Set<number>}
      */
     export function setAdd(s, num) {
         let newS = new Set();
@@ -29,5 +30,20 @@
         return newS;
     }
 
+    /**
+     * Modulo's all numbers in set s
+     * by the number num
+     * 
+     * @param {Set<number>} s
+     * @param {number} num
+     * @returns {Set<number>}
+     */
+    export function setModulo(s, num) {
+        let newS = new Set();
+        s.forEach((oldNum) => {
+            newS.add(oldNum % num)
+        })
+        return newS;
+    }
     
 </script>

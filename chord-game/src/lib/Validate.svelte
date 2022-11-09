@@ -1,5 +1,5 @@
 <script context="module" >
-    import { isSetEqual, setAdd } from './MathUtil.svelte'
+    import { isSetEqual, setAdd, setModulo } from './MathUtil.svelte'
     import { noteNames, chordFormula } from './Chord.svelte'
     /**
      * Checks if two sets of notes are equal.
@@ -75,12 +75,16 @@
      * 
      * Ex: If midi = {14, 19}, gridNotes = {3, 5},
      * brokenChordMatch(midi, 'E', 'm7', gridNotes)) === true
+     * 
+     * If useOctave is true, chord match is dependent on the 
+     * octave
      * @param {Set<number>} midi
      * @param {Set<number>} gridNotes
      * @param {string} keyName
      * @param {string} chordName
+     * @param {boolean} useOctave 
      */
-    export function brokenChordMatch(midi, keyName, chordName, gridNotes) {
+    export function brokenChordMatch(midi, keyName, chordName, gridNotes, useOctave = true) {
         let keyNum = noteNames.findIndex((name) => name === keyName)
         let grid = new Set(chordFormula.get(chordName))
 
@@ -88,7 +92,13 @@
 
         grid = setAdd(grid, keyNum)
         let notes = gridToChromatic(grid, gridNotes)
+        let _midi = new Set(midi)
+
+        if(!useOctave) {
+            _midi = setModulo(_midi, 12)
+            notes = setModulo(notes, 12)
+        }
         
-        return notesMatch(midi, notes)
+        return notesMatch(_midi, notes)
     }
 </script>
