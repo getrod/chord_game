@@ -10,15 +10,17 @@
 	let midi = new Set();
 	let sequence = addKeysToArray([[62, 67], [71], [74, 79], [76]]);
 	let _sequence = [
-		Chord('C', 'maj'),
-		Chord('D', 'm'),
-		Chord('F', 'maj'),
-		BrokenChordSeq('E', 'm7', [[3 + (4*2), 5 + (4*2)], [6 + (4*2)], [7+ (4*2), 9+ (4*2)], [8+ (4*2)]])
+		Chord('A', 'm9'),
+		Chord('B', 'm7'),
+		Chord('C', 'maj9'),
+		BrokenChordSeq('E', 'm7', [[3 + (4*4), 5 + (4*4)], [6 + (4*4)], [7+ (4*4), 9+ (4*4)], [8+ (4*4)]])
 	];
 	let displaySequence = [];
 
 	onMount(() => {
-		//console.log(sequence)
+		displaySequence = Array.from(_sequence);
+		displaySequence = addKeysToArray(displaySequence);
+        console.log(displaySequence)
 	});
 
 	/**
@@ -65,4 +67,4 @@
 <MidiListener on:midi={handleMidi} />
 
 <!-- <ChordSequence chordSequence={sequence}></ChordSequence> -->
-<!-- <ChordList chords={displaySequence}></ChordList> -->
+<ChordList chords={_sequence}></ChordList>

@@ -17,11 +17,19 @@
 </style>
 
 <div class="chord-sequence">
-    {#each chords as chord, i (chord.id)}
+    {#each chords as chord, i (chord)}
         <div animate:flip class="chord-card" style={i === 0 ? 'background-color: green;' : ''}>
-            <p class="chord-text" style={i === 0 ? 'color: white;' : ''}>
-                {chord.data.keyName + chord.data.chordName}
-            </p>
+            {#if chord.type === 'BrokenChord'}
+                <p class="chord-text" style={i === 0 ? 'color: white;' : ''}>
+                    {chord.keyName + chord.chordName + ': ' + chord.sequence}
+                </p>  
+            {:else}
+                <p class="chord-text" style={i === 0 ? 'color: white;' : ''}>
+                    {chord.keyName + chord.chordName}
+                </p>  
+            {/if}
+            
+           
         </div>
     {/each}
 </div>
