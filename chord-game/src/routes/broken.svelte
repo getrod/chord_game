@@ -1,16 +1,25 @@
 <script>
 	import ChordList from '../component/ChordList.svelte';
 	import MidiListener from '../component/MidiListener.svelte';
-	import { BrokenChordSeq, Chord } from '../lib/ChordSequence.svelte';
+	import { BrokenChord, Chord } from '../lib/ChordSequence.svelte';
 	import { MIDI_MESSAGE } from '../lib/Util.svelte';
-	import { brokenChordMatch, chordMatch } from '../lib/Validate.svelte';
+	import { brokenChordMatch, chordMatch, notesMatch } from '../lib/Validate.svelte';
 
 	let midi = new Set();
 	let _sequence = [
 		Chord('A', 'm9'),
 		Chord('B', 'm7'),
 		Chord('C', 'maj9'),
-        BrokenChordSeq('E', 'm7', [[3 , 5], [6], [7, 9], [8]])
+        BrokenChord('E', 'm7', [[3 , 5], [6], [7, 9], [8], [6]]),
+        BrokenChord('E', 'm7', [[3], [2], [3], [4], [1]]),
+	];
+
+    _sequence = [
+		Chord('Bb', 'm9'),
+		Chord('C', 'm7'),
+		Chord('C#', 'maj9'),
+        BrokenChord('F', 'm7', [[3 , 5], [6], [7, 9], [8], [6]]),
+        BrokenChord('F', 'm7', [[3], [2], [3], [4], [1]]),
 	];
 
 	/**
@@ -38,13 +47,21 @@
 	}
 
 	function match() {
+        // if no more chords, return
+        if (_sequence.length === 0) return
+
 		if (verify(midi, _sequence[0])) {
 			if (_sequence[0].type === 'BrokenChord') {
                 _sequence[0].sequence = _sequence[0].sequence.slice(1);
+                if (_sequence[0].sequence.length === 0) {
+                    // if nothing left in broken sequence, remove broken chord
+                    _sequence = _sequence.slice(1);
+                }
 			} else {
-				// remove the beginning element
+				// remove the beginning chord
 				_sequence = _sequence.slice(1);
 			}
+            midi.clear()
 		}
 	}
 </script>
