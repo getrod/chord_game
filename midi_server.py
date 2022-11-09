@@ -41,19 +41,24 @@ def midi_callback(event, data=None):
 
 def start():
     midiin = MidiIn()
-    
+
     ''' socket callbacks '''
-    sio.on('get_midi_ports')
+    @sio.on('get_midi_ports')
     def on_get_midi_ports():
         print('get_midi_ports')
         sio.emit('midi_ports', midiin.get_ports())
 
-    sio.on('select_midi_port')
+    @sio.on('select_midi_port')
     def on_select_midi_port(port):
         print(f'select_midi_port: {port}')
         midiin, port_name = midiutil.open_midiinput(port)
         midiin.set_callback(midi_callback) 
         sio.emit('is_port_open', midiin.is_port_open())
+
+    @sio.on('midi_track_event')
+    def on_midi_track_event(midi_event):
+        play_midi(midi_event)
+
 
     ''' open midi input '''
     try:
@@ -79,6 +84,5 @@ def start():
         midiin.close_port()
         fs.delete()
         del midiin
-
 
 start()

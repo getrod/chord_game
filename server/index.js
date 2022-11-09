@@ -24,6 +24,10 @@ io.on('connection', (socket) => {
     console.log(`${midi_event}`)
     io.emit('midi_event', midi_event);
   });
+
+  socket.on('midi_track_event', (midi_event) => {
+    io.emit('midi_track_event', midi_event);
+  });
 });
 
 server.listen(3000, () => {
