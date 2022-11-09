@@ -1,5 +1,5 @@
 <script context="module" >
-    import { isSetEqual } from './MathUtil.svelte'
+    import { isSetEqual, setAdd } from './MathUtil.svelte'
     import { noteNames, chordFormula } from './Chord.svelte'
     /**
      * Checks if two sets of notes are equal.
@@ -15,13 +15,13 @@
      * 
      * Ex: chordMatch(midi, 'C', 'maj')
      * @param {Set<number>} midi midi input
-     * @param {string} chordKey 
+     * @param {string} keyName 
      * @param {string} chordName
      */
-    export function chordMatch(midi, chordKey, chordName) {
+    export function chordMatch(midi, keyName, chordName) {
         let match = false
 
-        let chordKeyNum = noteNames.findIndex((name) => name === chordKey)
+        let chordKeyNum = noteNames.findIndex((name) => name === keyName)
         let chordIntervals = chordFormula.get(chordName)
         let chordSet = new Set();
         
@@ -68,5 +68,27 @@
         })
 
         return chromaticNotes
+    }
+
+    /**
+     * Check if midi notes match the broken notes.
+     * 
+     * Ex: If midi = {14, 19}, gridNotes = {3, 5},
+     * brokenChordMatch(midi, 'E', 'm7', gridNotes)) === true
+     * @param {Set<number>} midi
+     * @param {Set<number>} gridNotes
+     * @param {string} keyName
+     * @param {string} chordName
+     */
+    export function brokenChordMatch(midi, keyName, chordName, gridNotes) {
+        let keyNum = noteNames.findIndex((name) => name === keyName)
+        let grid = new Set(chordFormula.get(chordName))
+
+        if (!(keyNum !== -1 && grid)) return false
+
+        grid = setAdd(grid, keyNum)
+        let notes = gridToChromatic(grid, gridNotes)
+        
+        return notesMatch(midi, notes)
     }
 </script>

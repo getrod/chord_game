@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { isSetEqual, setAdd } from '../lib/MathUtil.svelte';
-    import { chordMatch, gridToChromatic } from '../lib/Validate.svelte';
+    import { chordMatch, gridToChromatic, brokenChordMatch } from '../lib/Validate.svelte';
 
     function test(condition, message) {
         console.log(`${condition ? 'PASS' : 'FAIL'}: ${message}`)
@@ -66,10 +66,23 @@
         )
     }
 
+    function broken_chord_match_test() {
+        test(
+            brokenChordMatch(new Set([14, 19]), 'E', 'm7', new Set([3, 5])),
+            'brokenChord: Em7<[3, 5]> === {14, 19}'
+        )
+
+        test(
+            !brokenChordMatch(new Set([14]), 'E', 'm7', new Set([3, 5])),
+            'brokenChord: Em7<[3, 5]> !== {14}'
+        )
+    }
+
     onMount(() => {
         set_is_equal_test()
         chord_match_test()
         grid_to_chromatic_test()
         set_add_test()
+        broken_chord_match_test()
     })
 </script>

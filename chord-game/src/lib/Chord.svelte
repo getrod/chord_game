@@ -47,6 +47,7 @@
     chordFormula.set('sus2',  [0, 2, 7])
     chordFormula.set('sus4',  [0, 5, 7])
     chordFormula.set('maj7',  [0, 4, 7, 11])
+    chordFormula.set('m7', [0, 3, 7, 10])
     chordFormula.set('maj9',  [0, 2, 4, 7, 11])
     chordFormula.set('m9',  [0, 2, 3, 7, 10])
 
