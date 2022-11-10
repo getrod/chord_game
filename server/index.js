@@ -2,8 +2,8 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server, {cors: {origin: '*'}});
+const { Server } = require("socket.io");            // v for audio_event
+const io = new Server(server, {cors: {origin: '*'}, maxHttpBufferSize:  1e8});
 
 app.get('/', (req, res) => {
   res.send('Midi Server!')
@@ -30,8 +30,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('midi_track', (track) => {
-    console.log(track)
     io.emit('midi_track', track);
+  });
+
+  socket.on('audio_event', (audio_event) => {
+    io.emit('audio_event', audio_event);
   });
 });
 

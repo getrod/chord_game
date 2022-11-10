@@ -1,6 +1,6 @@
 <script>
 	import { onDestroy, onMount } from "svelte";
-	import { Midi, MIDI_MESSAGE } from "../lib/Util.svelte";
+	import { Midi, TrackEvent, MIDI_MESSAGE } from "../lib/Util.svelte";
     import io from 'socket.io-client';
 	import MidiListener from "../component/MidiListener.svelte";
 
@@ -33,13 +33,6 @@
         TrackEvent(3, Midi(MIDI_MESSAGE.off, 64 + 4, 99)),
         TrackEvent(3, Midi(MIDI_MESSAGE.off, 67 + 4, 99)),
     ]
-
-    function TrackEvent(beat, midi_event) {
-        return {
-            beat: beat,
-            midi_event: midi_event
-        }
-    }
     
     onMount(() => {
         socket.emit('midi_track', {track: track, bpm: bpm})

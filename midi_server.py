@@ -11,10 +11,12 @@ from rtmidi import (midiutil, MidiIn, midiconstants)
 
 
 pa = pyaudio.PyAudio()
+sample_rate = 44100
+channels = 2
 strm = pa.open(
     format = pyaudio.paInt16,
-    channels = 2, 
-    rate = 44100, 
+    channels = channels, 
+    rate = sample_rate, 
     output = True)
 
 sio = socketio.Client()
@@ -34,22 +36,18 @@ def play_midi(midi):
 
 def play_track(midi_events, bpm):
     _fs = fluidsynth.Synth()
-    _fs.start()
     dir = 'sound_fonts'
     sfid = _fs.sfload(f'{dir}/Nice-Steinway-Lite-v3.0.sf2')
     _fs.program_select(0, sfid, 0, 0)
 
     ppq = 98
-    millsecondsPerSecond = 1000
     secondsPerMinute = 60
     secondsPerBeat = (secondsPerMinute) / (bpm)
     seconds_per_tick = secondsPerBeat / ppq
     current_tick = 0
     prev_tick = -1
 
-    s = []
-    # Initial silence is 1 second
-    s = numpy.append(s, _fs.get_samples(44100 * 1))
+    
 
     class MidiEvent:
         def __init__(self, event, note, velocity, tick):
@@ -85,6 +83,11 @@ def play_track(midi_events, bpm):
             _fs.noteoff(0, midi_event.note)
 
 
+    '''     Render Audio        '''
+    s = []
+    # Initial silence is 1 second
+    s = numpy.append(s, _fs.get_samples(sample_rate * 1))
+
     while len(_midi_events) != 0:
         # find the first tick value that is greater than prev_tick 
         for i in range(0, len(_midi_events)):
@@ -102,11 +105,8 @@ def play_track(midi_events, bpm):
                 same_tick_events.append(_midi_events.pop(0))
             else: break
 
-        midiEventsPrint(same_tick_events)
-        print()
-
         # render audio
-        s = numpy.append(s, _fs.get_samples(math.floor(44100 * seconds_per_tick * (current_tick - prev_tick))))
+        s = numpy.append(s, _fs.get_samples(math.floor(sample_rate * seconds_per_tick * (current_tick - prev_tick))))
 
         # activate midi events of current tick
         for midi_event in same_tick_events:
@@ -115,15 +115,25 @@ def play_track(midi_events, bpm):
         prev_tick = current_tick
     
     # End with silence 1 second
-    s = numpy.append(s, _fs.get_samples(44100 * 1))
+    s = numpy.append(s, _fs.get_samples(sample_rate * 1))
 
     _fs.delete()
 
-    samps = fluidsynth.raw_audio_string(s)
-
-    print (len(samps))
-    print ('Starting playback')
-    strm.write(samps)
+    _s = []
+    print (len(s))
+    print ('Sending audio')
+    int16_min = -32_768 
+    int16_max = 32_767
+    for sample in s:
+        # normalize the sample
+        norm_samp = ((sample + abs(int16_min)) / (abs(int16_min) + int16_max)) - 0.5
+        _s.append(norm_samp)
+    
+    sio.emit('audio_event', {
+        'audio_buffer': _s, 
+        'sample_rate': sample_rate, 
+        'num_channels': channels 
+    })
 
 def midi_callback(event, data=None):
     message, deltatime = event

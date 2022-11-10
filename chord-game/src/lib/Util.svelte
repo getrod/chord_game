@@ -16,4 +16,11 @@
 			velocity: velocity
 		};
 	}
+
+	export function TrackEvent(beat, midi_event) {
+        return {
+            beat: beat,
+            midi_event: midi_event
+        }
+    }
 </script>
