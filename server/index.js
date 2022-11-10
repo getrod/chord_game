@@ -28,6 +28,11 @@ io.on('connection', (socket) => {
   socket.on('midi_track_event', (midi_event) => {
     io.emit('midi_track_event', midi_event);
   });
+
+  socket.on('midi_track', (track) => {
+    console.log(track)
+    io.emit('midi_track', track);
+  });
 });
 
 server.listen(3000, () => {
