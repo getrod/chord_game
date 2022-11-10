@@ -71,6 +71,22 @@
     }
 
     /**
+     * 
+     * @param {string} keyName
+     * @param {string} chordName
+     * @param {Set<number>} gridNotes
+     */
+    export function chordToChromatic(keyName, chordName, gridNotes) {
+        let keyNum = noteNames.findIndex((name) => name === keyName)
+        let grid = new Set(chordFormula.get(chordName))
+
+        if (!(keyNum !== -1 && grid)) return undefined
+
+        grid = setAdd(grid, keyNum)
+        return gridToChromatic(grid, gridNotes)
+    }
+
+    /**
      * Check if midi notes match the broken notes.
      * 
      * Ex: If midi = {14, 19}, gridNotes = {3, 5},

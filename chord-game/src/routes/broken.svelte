@@ -1,7 +1,7 @@
 <script>
 	import ChordList from '../component/ChordList.svelte';
 	import MidiListener from '../component/MidiListener.svelte';
-	import { BrokenChord, Chord } from '../lib/ChordSequence.svelte';
+	import { BrokenChordSeq, Chord } from '../lib/ChordSequence.svelte';
 	import { MIDI_MESSAGE } from '../lib/Util.svelte';
 	import { brokenChordMatch, chordMatch, notesMatch } from '../lib/Validate.svelte';
 
@@ -10,16 +10,8 @@
 		Chord('A', 'm9'),
 		Chord('B', 'm7'),
 		Chord('C', 'maj9'),
-        BrokenChord('E', 'm7', [[3 , 5], [6], [7, 9], [8], [6]]),
-        BrokenChord('E', 'm7', [[3], [2], [3], [4], [1]]),
-	];
-
-    _sequence = [
-		Chord('Bb', 'm9'),
-		Chord('C', 'm7'),
-		Chord('C#', 'maj9'),
-        BrokenChord('F', 'm7', [[3 , 5], [6], [7, 9], [8], [6]]),
-        BrokenChord('F', 'm7', [[3], [2], [3], [4], [1]]),
+        BrokenChordSeq('E', 'm7', [[3 , 5], [6], [7, 9], [8], [6]]),
+        BrokenChordSeq('E', 'm7', [[3], [2], [3], [4], [1]]),
 	];
 
 	/**
