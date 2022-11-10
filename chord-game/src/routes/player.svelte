@@ -1,6 +1,5 @@
 <script>
-	import { onMount } from "svelte";
-    import MidiDispatcher, {  } from '../lib/MidiDispatcher.svelte'
+	import { onDestroy, onMount } from "svelte";
 	import { Midi, MIDI_MESSAGE } from "../lib/Util.svelte";
     import io from 'socket.io-client';
 	import MidiListener from "../component/MidiListener.svelte";
@@ -12,13 +11,18 @@
     let millsecondsPerSecond = 1000
     let secondsPerMinute = 60
     let intervalTime = ((millsecondsPerSecond * secondsPerMinute) / (bpm)) / ppq
-    let interval = setInterval(intervalCallback, intervalTime);
+    let interval = undefined;
     let tick = 0
 
     let _prevTime = 0
 
     onMount(() => {
+        interval = setInterval(intervalCallback, intervalTime);
         console.log(`interval: ${intervalTime}`)
+    })
+
+    onDestroy(() => {
+        clearInterval(interval)
     })
 
     let track = [
@@ -57,11 +61,11 @@
     function intervalCallback() {
         track.forEach((trackEvent) => {
             if (trackEvent.tick === tick) {
-                console.log(tick)
+                console.log(`tick ${tick}`)
                 socket.emit('midi_track_event', trackEvent.midi_event)
             }
         })
-        if (tick % ppq === 0) {console.log(`tick: ${Date.now() - _prevTime}`)}
+        if (tick % ppq === 0) {console.log(`ms: ${Date.now() - _prevTime}`)}
         _prevTime = Date.now()
         tick++;
     }
@@ -80,7 +84,6 @@
 </script>
 
 <h1>Player</h1>
-<MidiDispatcher></MidiDispatcher>
 <MidiListener on:midi={handleMidi}></MidiListener>
 
 <button on:click={() => {clearInterval(interval)}}>Stop Interval</button>
