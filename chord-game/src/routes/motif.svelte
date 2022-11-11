@@ -1,7 +1,13 @@
 <script>
 	import { onMount } from 'svelte';
-	import { BrokenChord, BrokenChordSeq, } from '../lib/ChordSequence.svelte';
-	import { Midi, TrackEvent, MIDI_MESSAGE } from '../lib/Util.svelte';
+	import { BrokenChord, BrokenChordSeq } from '../lib/ChordSequence.svelte';
+	import {
+		Midi,
+		TrackEvent,
+		ChordTrackEvent,
+		BrokenChordSeqTrackEvent,
+		MIDI_MESSAGE
+	} from '../lib/Util.svelte';
 	import io from 'socket.io-client';
 	import { chordToChromatic } from '../lib/Validate.svelte';
 
@@ -21,17 +27,21 @@
 		ChordTrackEvent(0, 2, BrokenChord('C', 'maj9', [0, 1, 2, 3, 4]), 5),
 
 		...BrokenChordSeqTrackEvent(
-			BrokenChordSeq('E', 'm7', [[3 , 5], [6], [7, 9], [8], [6]]),
-									   [3/4, 	1/4, 1/4, 	 1/4, 1/4], 4),
+			BrokenChordSeq('E', 'm7', [[3, 5], [6], [7, 9], [8], [6]]),
+			[3 / 4, 1 / 4, 1 / 4, 1 / 4, 1 / 4],
+			4
+		),
 
 		...BrokenChordSeqTrackEvent(
 			BrokenChordSeq('E', 'm7', [[3], [2], [3], [4], [1]]),
-									   [1/4, 1/4, 1/4,1/4, 1/4], 4),
+			[1 / 4, 1 / 4, 1 / 4, 1 / 4, 1 / 4],
+			4
+		),
 
-		ChordTrackEvent(0, 1 + 1/2, BrokenChord('E', 'm7', [1, 2, 3, 4]), 4),
-		ChordTrackEvent(0, 2 + 1/2, BrokenChord('C', 'maj9', [0, 1, 2, 3, 4]), 5),
+		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('E', 'm7', [1, 2, 3, 4]), 4),
+		ChordTrackEvent(0, 2 + 1 / 2, BrokenChord('C', 'maj9', [0, 1, 2, 3, 4]), 5),
 		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('B', 'm7', [3, 4, 5, 6]), 3),
-		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('A', 'm9', [3, 4, 5, 6, 7]), 3),
+		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('A', 'm9', [3, 4, 5, 6, 7]), 3)
 	];
 
 	let track = [
@@ -39,55 +49,6 @@
 		...ChordTrackEvent(1 + 1 / 2, 1 + 1 / 2, BrokenChord('B', 'm7', [3, 4, 5, 6]), 3).events,
 		...ChordTrackEvent(3, 2, BrokenChord('C', 'maj9', [0, 1, 2, 3, 4]), 5).events
 	];
-
-	/**
-	 *
-	 * @param startBeat
-	 * @param duration
-	 * @param {BrokenChord} brokenChord
-	 * @param {number} octave transpose the broken chord to an octave
-	 */
-	function ChordTrackEvent(startBeat, duration, brokenChord, octave = undefined) {
-		let notes = [];
-		notes.push(
-			...chordToChromatic(brokenChord.keyName, brokenChord.chordName, brokenChord.gridNotes)
-		);
-
-		let events = [];
-		notes.forEach((note) => {
-			if (octave) note = note + 12 * octave;
-			events.push(TrackEvent(startBeat, Midi(MIDI_MESSAGE.on, note, 99)));
-			events.push(TrackEvent(startBeat + duration, Midi(MIDI_MESSAGE.off, note, 0)));
-		});
-		return {
-			startBeat: startBeat,
-			duration: duration,
-			events: events,
-			brokenChord: brokenChord,
-			octave: octave
-		};
-	}
-
-	/**
-	 * Can only use for relative timing
-	 * @param {BrokenChordSeq} brokenChordSeq
-	 * @param {number[]} durations
-	 * @param octave
-	 */
-	function BrokenChordSeqTrackEvent(brokenChordSeq, durations, octave = undefined) {
-		let chordEvents = [];
-		if (brokenChordSeq.sequence.length !== durations.length) return [];
-		brokenChordSeq.sequence.forEach((notes, i) => {
-			chordEvents.push(ChordTrackEvent(
-				0, 
-				durations[i], 
-				BrokenChord('E', 'm7', notes), 
-				octave
-			));
-		});
-
-		return chordEvents;
-	}
 
 	function playBuffer() {
 		/**
