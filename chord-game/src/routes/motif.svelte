@@ -1,10 +1,9 @@
 <script>
-	import { onDestroy, onMount } from 'svelte';
-	import { BrokenChord, BrokenChordSeq, Chord } from '../lib/ChordSequence.svelte';
+	import { onMount } from 'svelte';
+	import { BrokenChord, BrokenChordSeq, } from '../lib/ChordSequence.svelte';
 	import { Midi, TrackEvent, MIDI_MESSAGE } from '../lib/Util.svelte';
 	import io from 'socket.io-client';
-	import { chordToChromatic, gridToChromatic } from '../lib/Validate.svelte';
-	import { noteNames, noteNumber } from '../lib/Chord.svelte';
+	import { chordToChromatic } from '../lib/Validate.svelte';
 
 	let _audio_event = undefined;
 
@@ -20,11 +19,19 @@
 		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('A', 'm9', [3, 4, 5, 6, 7]), 3),
 		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('B', 'm7', [3, 4, 5, 6]), 3),
 		ChordTrackEvent(0, 2, BrokenChord('C', 'maj9', [0, 1, 2, 3, 4]), 5),
-		ChordTrackEvent(0, 3 / 4, BrokenChord('E', 'm7', [3, 5]), 4),
-		ChordTrackEvent(0, 1 / 4, BrokenChord('E', 'm7', [6]), 4),
-		ChordTrackEvent(0, 1 / 4, BrokenChord('E', 'm7', [7, 9]), 4),
-		ChordTrackEvent(0, 1 / 4, BrokenChord('E', 'm7', [8]), 4),
-		ChordTrackEvent(0, 1 / 4, BrokenChord('E', 'm7', [6]), 4)
+
+		...BrokenChordSeqTrackEvent(
+			BrokenChordSeq('E', 'm7', [[3 , 5], [6], [7, 9], [8], [6]]),
+									   [3/4, 	1/4, 1/4, 	 1/4, 1/4], 4),
+
+		...BrokenChordSeqTrackEvent(
+			BrokenChordSeq('E', 'm7', [[3], [2], [3], [4], [1]]),
+									   [1/4, 1/4, 1/4,1/4, 1/4], 4),
+
+		ChordTrackEvent(0, 1 + 1/2, BrokenChord('E', 'm7', [1, 2, 3, 4]), 4),
+		ChordTrackEvent(0, 2 + 1/2, BrokenChord('C', 'maj9', [0, 1, 2, 3, 4]), 5),
+		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('B', 'm7', [3, 4, 5, 6]), 3),
+		ChordTrackEvent(0, 1 + 1 / 2, BrokenChord('A', 'm9', [3, 4, 5, 6, 7]), 3),
 	];
 
 	let track = [
