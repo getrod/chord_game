@@ -14,7 +14,7 @@ npm run dev
 ```
 TODO:
 	- display broken chord sequence
-	- rewrite entire code in terms of Chord / BrokenChord Data structures
+	- * rewrite entire code in terms of Chord / BrokenChord Data structures
 	- create a way of making and storing motifs
 	- make the motif game
 ```

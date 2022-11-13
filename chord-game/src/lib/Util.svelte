@@ -68,7 +68,7 @@
 			chordEvents.push(ChordTrackEvent(
 				0, 
 				durations[i], 
-				BrokenChord('E', 'm7', notes), 
+				BrokenChord(brokenChordSeq.keyName, brokenChordSeq.chordName, notes), 
 				octave
 			));
 		});
