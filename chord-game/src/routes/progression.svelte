@@ -1,6 +1,5 @@
 <script>
 	import ChordSequence from '../component/ChordSequence.svelte';
-	import { chordGeneratorRandom } from '../lib/ChordSequence.svelte';
 	import { getChordProgression, addKeysToChordSequence } from '../lib/ChordProression.svelte';
 	import { chordMatch } from '../lib/Chord.svelte';
 	import ActiveNotes from '../component/ActiveNotes.svelte';

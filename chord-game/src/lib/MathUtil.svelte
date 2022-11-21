@@ -46,4 +46,16 @@
         return newS;
     }
     
+    /**
+     * A modulo without negative numbers.
+     * 
+     * Ex: -1 % 5 = -1
+     * Ex: mod(-1, 5) = 4 
+     * @param {number} n1
+     * @param {number} n2
+     */
+    export function mod(n1, n2) {
+        return ((n1 % n2) + n2) % n2;
+    }
+    
 </script>

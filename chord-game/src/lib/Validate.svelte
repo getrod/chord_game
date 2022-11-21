@@ -1,5 +1,5 @@
 <script context="module" >
-    import { isSetEqual, setAdd, setModulo } from './MathUtil.svelte'
+    import { isSetEqual, mod, setAdd, setModulo } from './MathUtil.svelte'
     import { noteNames, chordFormula } from './Chord.svelte'
     /**
      * Checks if two sets of notes are equal.
@@ -63,7 +63,7 @@
 
         gridNotes.forEach((gridNote) => {
             // find the corresponding chromatic note to this grid
-            let note = _grid[(gridNote % _grid.length)] + 12 * Math.floor(gridNote / _grid.length)
+            let note = _grid[mod(gridNote, _grid.length)] + 12 * Math.floor(gridNote / _grid.length)
             chromaticNotes.add(note)
         })
 
