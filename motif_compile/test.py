@@ -18,5 +18,31 @@ class TestMotifCompiler(unittest.TestCase):
         self.assertEqual(key, 'A')
         self.assertEqual(i, 2)
 
+        # ensure assertion is raised
+        self.assertRaises(Exception, motif.parse_key, 'H', 0)
+
+    def test_parse_chord(self):
+        chord, pos = motif.parse_chord('maj9', 0)
+        self.assertEqual(chord, 'maj9')
+        self.assertEqual(pos, 4)
+
+        chord, pos = motif.parse_chord('maj9 ', 0)
+        self.assertEqual(chord, 'maj9')
+        self.assertEqual(pos, 4)
+
+        # skip space test
+        chord, pos = motif.parse_chord(' maj9 ', 0)
+        self.assertEqual(chord, 'maj9')
+        self.assertEqual(pos, 5)
+
+        # the "sus" case
+        self.assertRaises(Exception, motif.parse_chord, 'sus', 0)
+
+        # other exceptions
+        self.assertRaises(Exception, motif.parse_chord, 'a', 0)
+
+
+
+
 if __name__ == '__main__':
     unittest.main()
