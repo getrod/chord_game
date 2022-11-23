@@ -78,7 +78,7 @@ def parse_key(s: str, start: int) -> tuple[str, int]:
     i = start
     parsed_key = ''
 
-    while True:
+    while i < len(s):
         if state == 0:
             # skip blank space at beginning
             if s[i].isspace(): i += 1
@@ -95,7 +95,8 @@ def parse_key(s: str, start: int) -> tuple[str, int]:
             if s[i] in symbols:
                 parsed_key += s[i]
                 i += 1
-            return (parsed_key, i)
+            break
+    return (parsed_key, i)
 
 class Node:
     def __init__(self, value, is_terminal = False) -> None:
@@ -196,7 +197,37 @@ class Chord:
     def __str__(self) -> str:
         return f'Chord[key: {self.key}, chord: {self.chord_type}, notes: {self.notes}, duration: {self.duration}, octave: {self.octave}]'
 
-def parse_chord_motif(s: str, start: int):
+class BrokenChord:
+    def __init__(self, key, chord_type, note_seq, duration_seq, octave = None):
+        self.key = key
+        self.chord_type = chord_type
+        self.note_seq = note_seq
+        self.duration_seq = duration_seq
+        self.octave = octave
+    
+    def __str__(self) -> str:
+        return f'BrokenChord[key: {self.key}, chord: {self.chord_type}, note_seq: {self.note_seq}, duration_seq: {self.duration_seq}, octave: {self.octave}]'
+
+def parse_keychord(keychord: str, strict = True):
+    key, kpos = parse_key(keychord, 0)
+    chord = ''
+    cpos = -1
+    try:
+        chord, cpos = parse_chord(keychord, kpos)
+    except Exception as err:
+        if strict: raise err
+    return key, kpos, chord, cpos
+
+def parse_octave(octave_str: str):
+    octave = None
+    octave_str = octave_str.strip()
+    if octave_str != '':
+        try: 
+            octave = int(octave_str)
+        except ValueError: raise Exception(f'"{octave_str}" is an invalid octave.')
+    return octave
+
+def parse_chord_motif(s: str, start: int, strict = True):
     state = 0
     keychord_parsed = ''
     notes_parsed = ''
@@ -259,21 +290,17 @@ def parse_chord_motif(s: str, start: int):
     if not valid: raise Exception(f'{e_message}')
 
     ''' convert parsed strings into chord object '''
-    key, kpos = parse_key(keychord_parsed, 0)
-    chord, cpos = parse_chord(keychord_parsed, kpos)
+    key, kpos, chord, cpos = parse_keychord(keychord_parsed, strict)
     
-    if cpos != len(keychord_parsed):
+    # print(f'keychord: "{keychord_parsed}", notes: "{notes_parsed}", duration: "{duration_parsed}"')
+    if strict and cpos != len(keychord_parsed):
         raise Exception(f'"{keychord_parsed[kpos:]}" is not a defined chord')
     
     # notes
     octave = None
     if '|' in notes_parsed:
         notes_str, octave_str = notes_parsed.split('|')
-        octave_str = octave_str.strip()
-        if octave_str != '':
-            try: 
-                octave = int(octave_str)
-            except ValueError: raise Exception(f'"{octave_str}" is an invalid octave.')
+        octave = parse_octave(octave_str)
     else: notes_str = notes_parsed
     notes = parse_notes(notes_str)
 
@@ -308,7 +335,17 @@ def parse_duration(s: str) -> float:
 
 
 
+
 '''
+Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
+Em7[1 2 3 4 | 4]-(3/2),
+Cmaj9[0 1 2 3 4 | 5]-(5/2),
+Bm7[3 4 5 6 | 3]-(3/2),
+Am9[3 4 5 6 7 | 3]-(3/2),
+Am9[3 4 5 6 7 ]-(3/2)
+'''
+
+test = '''
 Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
 Em7<[3 5]-(3/4), [6]-(1/4), [7 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>,
 Em7<[3]-(1/4), [2]-(1/4), [3]-(1/4), [4]-(1/4), [1]-(1/4) | 4>,
@@ -317,51 +354,56 @@ Cmaj9[0 1 2 3 4 | 5]-(5/2),
 Bm7[3 4 5 6 | 3]-(3/2),
 Am9[3 4 5 6 7 | 3]-(3/2)
 '''
-
-
-test = '''
-Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
-Em7[1 2 3 4 | 4]-(3/2),
-Cmaj9[0 1 2 3 4 | 5]-(5/2),
-Bm7[3 4 5 6 | 3]-(3/2),
-Am9[3 4 5 6 7 | 3]-(3/2),
-Am9[3 4 5 6 7 ]-(3/2)
-'''
-test = test.strip()
-tokens = re.split('\s*,\s*', test)
+s = test.strip()
+tokens = re.split('\s*,\s*', s)
 print(tokens)
 
-count = 0
+brokenchord_key = ''
+brokenchord_chord = ''
+brokenchord_notes = []
+brokenchord_durations = []
+parsing_brokenchord = False
 for token in tokens:
-    # # broken chord case
-    # if '<' in token:
-    #     pass
-    # elif '>' in token:
-    #     # end
-    #     pass
-    
-    # keychord_parsed, notes_parsed, duration_parsed, _ = parse_chord_motif(token, 0)
-    # # print(f'keychord: "{keychord_parsed}", notes: "{notes_parsed}", duration: "{duration_parsed}"')
-    # key, pos = parse_key(keychord_parsed, 0)
-    # chord, pos = parse_chord(keychord_parsed, pos)
-    # print(f'key: {key}, chord: {chord}, match: {pos == len(keychord_parsed)}')
+    ''' broken chord case '''
+    if '<' in token:
+        brokenchord_keychord, chord_piece = token.split('<')
+        key, _, chord, _ = parse_keychord(brokenchord_keychord)
+        brokenchord_key = key
+        brokenchord_chord = chord
+        parsing_brokenchord = True
+    elif '>' in token:
+        _token = token.split('>')[0]
+        _tokens = _token.split('|')
+        chord_piece = _tokens[0]
 
-    # # notes
-    # octave = None
-    # if '|' in notes_parsed:
-    #     notes_str, octave_str = notes_parsed.split('|')
-    #     octave_str = octave_str.strip()
-    #     if octave_str != '':
-    #         try: 
-    #             octave = int(octave_str)
-    #         except ValueError: raise Exception(f'"{octave_str}" is an invalid octave.')
-    # else: notes_str = notes_parsed
-    # notes = parse_notes(notes_str)
-    
-    # print(f'notes: {notes}')
-    # print(f'octave: {octave}')
+        # last chord piece
+        chord = parse_chord_motif(chord_piece, 0, False)
+        brokenchord_notes.append(chord.notes)
+        brokenchord_durations.append(chord.duration)
 
-    chord = parse_chord_motif(token, 0)
+        # octave
+        octave = None
+        if len(_tokens) > 1:
+            octave_str = _tokens[1]
+            octave = parse_octave(octave_str)
+
+        bc = BrokenChord(brokenchord_key, brokenchord_chord, brokenchord_notes, brokenchord_durations, octave)
+        print(bc)
+        brokenchord_key = ''
+        brokenchord_chord = ''
+        brokenchord_notes = []
+        brokenchord_durations = []
+        parsing_brokenchord = False
+        continue
+
+    if parsing_brokenchord:
+        chord = parse_chord_motif(token, 0, False)
+        brokenchord_notes.append(chord.notes)
+        brokenchord_durations.append(chord.duration)
+        continue
+
+    ''' chord case '''
+    chord = parse_chord_motif(token, 0, False)
     print(chord)
 
     
