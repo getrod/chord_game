@@ -31,7 +31,7 @@ class TestMotifCompiler(unittest.TestCase):
         self.assertEqual(pos, 4)
 
         # skip space test
-        chord, pos = motif.parse_chord(' maj9 ', 0)
+        chord, pos = motif.parse_chord(' maj9 ', 0, True)
         self.assertEqual(chord, 'maj9')
         self.assertEqual(pos, 5)
 
@@ -41,7 +41,13 @@ class TestMotifCompiler(unittest.TestCase):
         # other exceptions
         self.assertRaises(Exception, motif.parse_chord, 'a', 0)
 
+    def test_parse_duration(self):
+        self.assertEqual(motif.parse_duration('3/2'), 1.5)
+        self.assertEqual(motif.parse_duration('1/2'), 0.5)
+        self.assertEqual(motif.parse_duration('0'), 0)
+        self.assertEqual(motif.parse_duration('4'), 4)
 
+        self.assertRaises(Exception, motif.parse_duration, '-1/2')
 
 
 if __name__ == '__main__':

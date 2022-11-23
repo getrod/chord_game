@@ -1,3 +1,4 @@
+import re
 '''
 Am9[3, 4, 5, 6, 7 | 3]-(3/2), 
 Bm7[3, 4, 5, 6 | 3]-(3/2), 
@@ -8,6 +9,17 @@ Em7[1, 2, 3, 4 | 4]-(3/2),
 Cmaj9[0, 1, 2, 3, 4 | 5]-(5/2),
 Bm7[3, 4, 5, 6 | 3]-(3/2),
 Am9[3, 4, 5, 6, 7 | 3]-(3/2)
+
+
+Alternate:
+Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
+Em7<[3 5]-(3/4), [6]-(1/4), [7 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>,
+Em7<[3]-(1/4), [2]-(1/4), [3]-(1/4), [4]-(1/4), [1]-(1/4) | 4>,
+Em7[1 2 3 4 | 4]-(3/2),
+Cmaj9[0 1 2 3 4 | 5]-(5/2),
+Bm7[3 4 5 6 | 3]-(3/2),
+Am9[3 4 5 6 7 | 3]-(3/2)
+
 
 Syntax tree:
     List
@@ -44,6 +56,9 @@ Syntax tree:
         ...
 
 Chord extensions: Am-add2[...], Bmaj7-add4[...]
+
+
+keychord[...]
 '''
 
 ex = '''Am9[3, 4, 5, 6, 7 | 3]-(3/2), Bm7[3, 4, 5, 6 | 3]-(3/2), 
@@ -130,16 +145,17 @@ class ChordNameTree:
         return current_node.is_terminal
 
     ''' Finds the first best match of the chord in the string '''
-    def parse_chord(self, s: str, start: int) -> tuple[str,int]:
+    def parse_chord(self, s: str, start: int, use_space=True) -> tuple[str,int]:
         current_node = self.init_node
         _parsed_chord = ''
-
-        # skip space in beginning
         _start = start
-        for i in range(start, len(s)):
-            if s[i].isspace() == False: 
-                _start = i
-                break
+        
+        if use_space:
+            # skip space in beginning
+            for i in range(start, len(s)):
+                if s[i].isspace() == False: 
+                    _start = i
+                    break
         
         _saved_chord = None
         _saved_pos = 0
@@ -156,18 +172,197 @@ class ChordNameTree:
             current_node = node
         
         if _saved_chord: return (_saved_chord, _saved_pos)
-        else: raise Exception(f'"{_parsed_chord}" is not a defined chord')
+        else: raise Exception(f'"{_parsed_chord if len(_parsed_chord) == 1 else _parsed_chord[:-1]}" is not a defined chord')
 
 chord_tree = ChordNameTree()
 
 ''' returns the parsed chord and the ending search position '''
-def parse_chord(s: str, start: int) -> tuple[str, int]:
-    return chord_tree.parse_chord(s, start)
+def parse_chord(s: str, start: int, use_space=False) -> tuple[str, int]:
+    return chord_tree.parse_chord(s, start, use_space)
 
-test_input = 'Ab maj9-add2'
+test_input_1 = 'Gbsus2-add2[3, 4, 5, 6, 7 | 3]-(3/2)'
+test_input = 'A#m[0 1 2 | 5]-(1/2), Gbsus2-add2[3 4 5 6 7 | 3]-(3/2)'
 
-# chord, pos = parse_chord("  pi ", 3)
-# print(f'chord: {chord}, pos: {pos}')
-key, pos = parse_key(test_input, 0)
-chord, pos = parse_chord(test_input, pos)
-print(f'key: {key}, chord: {chord}')
+
+
+class Chord:
+    def __init__(self, key, chord_type, notes,  duration, octave = None):
+        self.key = key
+        self.chord_type = chord_type
+        self.notes = notes
+        self.duration = duration
+        self.octave = octave
+    
+    def __str__(self) -> str:
+        return f'Chord[key: {self.key}, chord: {self.chord_type}, notes: {self.notes}, duration: {self.duration}, octave: {self.octave}]'
+
+def parse_chord_motif(s: str, start: int):
+    state = 0
+    keychord_parsed = ''
+    notes_parsed = ''
+    duration_parsed = ''
+    i = start
+    valid = False
+    e_message = ''
+    pos = -1
+
+    ''' seperate the different strings to be parsed '''
+    while i < len(s):
+        char = s[i]
+        # get keychord
+        if state == 0:
+            if char == '[': 
+                state = 1
+                i += 1
+            else:
+                keychord_parsed += char
+                i += 1
+            if i >= len(s):
+                e_message = 'no "[" found'
+                break
+        # get notes
+        elif state == 1:
+            if char == ']':
+                state = 2
+                i += 1
+            else:
+                notes_parsed += char
+                i += 1
+            if i >= len(s):
+                e_message = 'no "]" found'
+                break
+        # get duration
+        elif state == 2:
+            if char == '-':
+                state = 3
+                i += 1
+            else: 
+                e_message = f'no "-" found, got: {char}'
+                break
+        elif state == 3:
+            if char == '(':
+                state = 4
+                i += 1
+            else: 
+                e_message = f'no "(" found, got: "{char}"'
+                break
+        elif state == 4:
+            if char == ')':
+                valid = True
+                pos = i + 1
+                break
+            duration_parsed += char
+            i += 1
+            if i >= len(s):
+                e_message = f'no ")" found'
+                break
+    if not valid: raise Exception(f'{e_message}')
+
+    ''' convert parsed strings into chord object '''
+    key, kpos = parse_key(keychord_parsed, 0)
+    chord, cpos = parse_chord(keychord_parsed, kpos)
+    
+    if cpos != len(keychord_parsed):
+        raise Exception(f'"{keychord_parsed[kpos:]}" is not a defined chord')
+    
+    # notes
+    octave = None
+    if '|' in notes_parsed:
+        notes_str, octave_str = notes_parsed.split('|')
+        octave_str = octave_str.strip()
+        if octave_str != '':
+            try: 
+                octave = int(octave_str)
+            except ValueError: raise Exception(f'"{octave_str}" is an invalid octave.')
+    else: notes_str = notes_parsed
+    notes = parse_notes(notes_str)
+
+    # duration
+    duration = parse_duration(duration_parsed)
+    return Chord(key, chord, notes, duration, octave)
+    
+
+def parse_notes(s: str) -> list[int]:
+    _s = s.strip()
+    notes_str = _s.split(' ')
+    notes = []
+    for note_str in notes_str:
+        try:
+            note = int(note_str)
+            notes.append(note)
+        except ValueError: raise Exception(f'"{note_str}" is not a note number.')
+    return notes
+    
+def parse_duration(s: str) -> float:
+    tokens = s.split('/')
+    try:
+        val = int(tokens[0])
+        for token in tokens[1:]:
+            val /= float(int(token))
+    except ValueError: raise Exception(f'{val} is not an int')
+
+    # cant be negative
+    if val < 0: raise Exception(f'duration cannot be negative, but got {val}')
+    return val
+
+
+
+
+'''
+Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
+Em7<[3 5]-(3/4), [6]-(1/4), [7 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>,
+Em7<[3]-(1/4), [2]-(1/4), [3]-(1/4), [4]-(1/4), [1]-(1/4) | 4>,
+Em7[1 2 3 4 | 4]-(3/2),
+Cmaj9[0 1 2 3 4 | 5]-(5/2),
+Bm7[3 4 5 6 | 3]-(3/2),
+Am9[3 4 5 6 7 | 3]-(3/2)
+'''
+
+
+test = '''
+Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
+Em7[1 2 3 4 | 4]-(3/2),
+Cmaj9[0 1 2 3 4 | 5]-(5/2),
+Bm7[3 4 5 6 | 3]-(3/2),
+Am9[3 4 5 6 7 | 3]-(3/2),
+Am9[3 4 5 6 7 ]-(3/2)
+'''
+test = test.strip()
+tokens = re.split('\s*,\s*', test)
+print(tokens)
+
+count = 0
+for token in tokens:
+    # # broken chord case
+    # if '<' in token:
+    #     pass
+    # elif '>' in token:
+    #     # end
+    #     pass
+    
+    # keychord_parsed, notes_parsed, duration_parsed, _ = parse_chord_motif(token, 0)
+    # # print(f'keychord: "{keychord_parsed}", notes: "{notes_parsed}", duration: "{duration_parsed}"')
+    # key, pos = parse_key(keychord_parsed, 0)
+    # chord, pos = parse_chord(keychord_parsed, pos)
+    # print(f'key: {key}, chord: {chord}, match: {pos == len(keychord_parsed)}')
+
+    # # notes
+    # octave = None
+    # if '|' in notes_parsed:
+    #     notes_str, octave_str = notes_parsed.split('|')
+    #     octave_str = octave_str.strip()
+    #     if octave_str != '':
+    #         try: 
+    #             octave = int(octave_str)
+    #         except ValueError: raise Exception(f'"{octave_str}" is an invalid octave.')
+    # else: notes_str = notes_parsed
+    # notes = parse_notes(notes_str)
+    
+    # print(f'notes: {notes}')
+    # print(f'octave: {octave}')
+
+    chord = parse_chord_motif(token, 0)
+    print(chord)
+
+    
+    
