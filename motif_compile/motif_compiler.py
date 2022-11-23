@@ -1,17 +1,6 @@
 import re
 '''
-Am9[3, 4, 5, 6, 7 | 3]-(3/2), 
-Bm7[3, 4, 5, 6 | 3]-(3/2), 
-Cmaj9[0, 1, 2, 3, 4 | 5]-(3/2), 
-Em7<[3, 5]-(3/4), [6]-(1/4), [7, 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>,
-Em7<[3]-(1/4), [2]-(1/4), [3]-(1/4), [4]-(1/4), [1]-(1/4) | 4>,
-Em7[1, 2, 3, 4 | 4]-(3/2),
-Cmaj9[0, 1, 2, 3, 4 | 5]-(5/2),
-Bm7[3, 4, 5, 6 | 3]-(3/2),
-Am9[3, 4, 5, 6, 7 | 3]-(3/2)
-
-
-Alternate:
+Example motif:
 Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
 Em7<[3 5]-(3/4), [6]-(1/4), [7 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>,
 Em7<[3]-(1/4), [2]-(1/4), [3]-(1/4), [4]-(1/4), [1]-(1/4) | 4>,
@@ -54,16 +43,6 @@ Syntax tree:
             NoteSequence: [[3], [2], [3], [4], [1]]
             DurationSequence: [¼, ¼, ¼, ¼, ¼]
         ...
-
-Chord extensions: Am-add2[...], Bmaj7-add4[...]
-
-
-keychord[...]
-'''
-
-ex = '''Am9[3, 4, 5, 6, 7 | 3]-(3/2), Bm7[3, 4, 5, 6 | 3]-(3/2), 
-Cmaj9[0, 1, 2, 3, 4 | 5]-(3/2), 
-Em7<[3, 5]-(3/4), [6]-(1/4), [7, 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>,
 '''
 
 base_keys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
@@ -181,11 +160,6 @@ chord_tree = ChordNameTree()
 def parse_chord(s: str, start: int, use_space=False) -> tuple[str, int]:
     return chord_tree.parse_chord(s, start, use_space)
 
-test_input_1 = 'Gbsus2-add2[3, 4, 5, 6, 7 | 3]-(3/2)'
-test_input = 'A#m[0 1 2 | 5]-(1/2), Gbsus2-add2[3 4 5 6 7 | 3]-(3/2)'
-
-
-
 class Chord:
     def __init__(self, key, chord_type, notes,  duration, octave = None):
         self.key = key
@@ -234,7 +208,7 @@ def parse_chord_motif(s: str, start: int, strict = True):
     duration_parsed = ''
     i = start
     valid = False
-    e_message = ''
+    e_message = 'empty chord'
     pos = -1
 
     ''' seperate the different strings to be parsed '''
@@ -289,10 +263,12 @@ def parse_chord_motif(s: str, start: int, strict = True):
                 break
     if not valid: raise Exception(f'{e_message}')
 
-    ''' convert parsed strings into chord object '''
-    key, kpos, chord, cpos = parse_keychord(keychord_parsed, strict)
-    
     # print(f'keychord: "{keychord_parsed}", notes: "{notes_parsed}", duration: "{duration_parsed}"')
+
+    ''' convert parsed strings into chord object '''
+    key, kpos, chord, cpos = parse_keychord(keychord_parsed, False)
+    
+    
     if strict and cpos != len(keychord_parsed):
         raise Exception(f'"{keychord_parsed[kpos:]}" is not a defined chord')
     
@@ -332,79 +308,57 @@ def parse_duration(s: str) -> float:
     if val < 0: raise Exception(f'duration cannot be negative, but got {val}')
     return val
 
+def parse_motif(s: str):
+    tokens = re.split('\s*,\s*', s)
+    motif = []
 
+    brokenchord_key = ''
+    brokenchord_chord = ''
+    brokenchord_notes = []
+    brokenchord_durations = []
+    parsing_brokenchord = False
+    for token in tokens:
+        token = token.strip()
+        ''' broken chord case '''
+        if '<' in token:
+            brokenchord_keychord, chord_piece = token.split('<')
+            key, _, chord, _ = parse_keychord(brokenchord_keychord)
+            brokenchord_key = key
+            brokenchord_chord = chord
+            parsing_brokenchord = True
+        elif '>' in token:
+            _token = token.split('>')[0]
+            _tokens = _token.split('|')
+            chord_piece = _tokens[0]
 
+            # last chord piece
+            chord = parse_chord_motif(chord_piece, 0, False)
+            brokenchord_notes.append(chord.notes)
+            brokenchord_durations.append(chord.duration)
 
+            # octave
+            octave = None
+            if len(_tokens) > 1:
+                octave_str = _tokens[1]
+                octave = parse_octave(octave_str)
 
-'''
-Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
-Em7[1 2 3 4 | 4]-(3/2),
-Cmaj9[0 1 2 3 4 | 5]-(5/2),
-Bm7[3 4 5 6 | 3]-(3/2),
-Am9[3 4 5 6 7 | 3]-(3/2),
-Am9[3 4 5 6 7 ]-(3/2)
-'''
+            bc = BrokenChord(brokenchord_key, brokenchord_chord, brokenchord_notes, brokenchord_durations, octave)
+            motif.append(bc)
 
-test = '''
-Am9[3 4 5 6 7 | 3]-(3/2), Bm7[3 4 5 6 | 3]-(3/2), Cmaj9[0 1 2 3 4 | 5]-(3/2), 
-Em7<[3 5]-(3/4), [6]-(1/4), [7 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>,
-Em7<[3]-(1/4), [2]-(1/4), [3]-(1/4), [4]-(1/4), [1]-(1/4) | 4>,
-Em7[1 2 3 4 | 4]-(3/2),
-Cmaj9[0 1 2 3 4 | 5]-(5/2),
-Bm7[3 4 5 6 | 3]-(3/2),
-Am9[3 4 5 6 7 | 3]-(3/2)
-'''
-s = test.strip()
-tokens = re.split('\s*,\s*', s)
-print(tokens)
+            brokenchord_key = ''
+            brokenchord_chord = ''
+            brokenchord_notes = []
+            brokenchord_durations = []
+            parsing_brokenchord = False
+            continue
 
-brokenchord_key = ''
-brokenchord_chord = ''
-brokenchord_notes = []
-brokenchord_durations = []
-parsing_brokenchord = False
-for token in tokens:
-    ''' broken chord case '''
-    if '<' in token:
-        brokenchord_keychord, chord_piece = token.split('<')
-        key, _, chord, _ = parse_keychord(brokenchord_keychord)
-        brokenchord_key = key
-        brokenchord_chord = chord
-        parsing_brokenchord = True
-    elif '>' in token:
-        _token = token.split('>')[0]
-        _tokens = _token.split('|')
-        chord_piece = _tokens[0]
+        if parsing_brokenchord:
+            chord = parse_chord_motif(token, 0, False)
+            brokenchord_notes.append(chord.notes)
+            brokenchord_durations.append(chord.duration)
+            continue
 
-        # last chord piece
-        chord = parse_chord_motif(chord_piece, 0, False)
-        brokenchord_notes.append(chord.notes)
-        brokenchord_durations.append(chord.duration)
-
-        # octave
-        octave = None
-        if len(_tokens) > 1:
-            octave_str = _tokens[1]
-            octave = parse_octave(octave_str)
-
-        bc = BrokenChord(brokenchord_key, brokenchord_chord, brokenchord_notes, brokenchord_durations, octave)
-        print(bc)
-        brokenchord_key = ''
-        brokenchord_chord = ''
-        brokenchord_notes = []
-        brokenchord_durations = []
-        parsing_brokenchord = False
-        continue
-
-    if parsing_brokenchord:
-        chord = parse_chord_motif(token, 0, False)
-        brokenchord_notes.append(chord.notes)
-        brokenchord_durations.append(chord.duration)
-        continue
-
-    ''' chord case '''
-    chord = parse_chord_motif(token, 0, False)
-    print(chord)
-
-    
-    
+        ''' chord case '''
+        chord = parse_chord_motif(token, 0, True)
+        motif.append(chord)
+    return motif

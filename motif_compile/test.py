@@ -47,7 +47,32 @@ class TestMotifCompiler(unittest.TestCase):
         self.assertEqual(motif.parse_duration('0'), 0)
         self.assertEqual(motif.parse_duration('4'), 4)
 
+        # negative duration test
         self.assertRaises(Exception, motif.parse_duration, '-1/2')
+
+    def test_parse_motif(self):
+        test = '''Am9[3 4 5 6 7 | 3]-(3/2), B#m7[3 4 5 6 | 3]-(3/2), 
+        Em7<[3 5]-(3/4), [6]-(1/4), [7 9]-(1/4), [8]-(1/4), [6]-(1/4) | 4>
+        '''
+        motifs = motif.parse_motif(test)
+        self.assertEqual(motifs[0].key, 'A')
+        self.assertEqual(motifs[0].chord_type, 'm9')
+        self.assertEqual(motifs[0].notes, [3, 4, 5, 6, 7])
+        self.assertEqual(motifs[0].duration, 1.5)
+        self.assertEqual(motifs[0].octave, 3)
+
+        self.assertEqual(motifs[1].key, 'B#')
+        self.assertEqual(motifs[1].chord_type, 'm7')
+        self.assertEqual(motifs[1].notes, [3, 4, 5, 6])
+        self.assertEqual(motifs[1].duration, 1.5)
+        self.assertEqual(motifs[1].octave, 3)
+
+        self.assertEqual(motifs[2].key, 'E')
+        self.assertEqual(motifs[2].chord_type, 'm7')
+        self.assertEqual(motifs[2].note_seq, [[3, 5], [6], [7, 9], [8], [6]])
+        self.assertEqual(motifs[2].duration_seq, [3/4, 1/4, 1/4, 1/4, 1/4])
+        self.assertEqual(motifs[2].octave, 4)
+
 
 
 if __name__ == '__main__':
