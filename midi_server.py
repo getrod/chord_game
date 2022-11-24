@@ -133,7 +133,7 @@ def play_track(midi_events, bpm):
         norm_samp = ((sample + abs(int16_min)) / (abs(int16_min) + int16_max)) - 0.5
         _s.append(norm_samp)
     
-    sio.emit('audio_event', {
+    sio.emit('track_audio_res', {
         'audio_buffer': _s, 
         'sample_rate': sample_rate, 
         'num_channels': channels 
@@ -178,8 +178,8 @@ def start():
     def on_midi_track_event(midi_event):
         play_midi(midi_event)
 
-    @sio.on('midi_track')
-    def on_midi_track(track):
+    @sio.on('track_audio_req')
+    def on_track_audio_req(track):
         print('called!')
         lock.acquire()
         play_track(track['track'], track['bpm'])

@@ -29,12 +29,14 @@ io.on('connection', (socket) => {
     io.emit('midi_track_event', midi_event);
   });
 
-  socket.on('midi_track', (track) => {
-    io.emit('midi_track', track);
+  // AUDIO
+
+  socket.on('track_audio_req', (track) => {
+    io.emit('track_audio_req', track);
   });
 
-  socket.on('audio_event', (audio_event) => {
-    io.emit('audio_event', audio_event);
+  socket.on('track_audio_res', (audio_res) => {
+    io.emit('track_audio_res', audio_res);
   });
 
   // MOTIF

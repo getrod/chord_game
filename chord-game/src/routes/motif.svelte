@@ -6,26 +6,20 @@
 		BrokenChordSeqTrackEvent,
 		CHORD_TYPE
 	} from '../lib/Util.svelte';
-	import {socket} from '../lib/Socket.svelte'
+	import {socket, asyncEmit} from '../lib/Socket.svelte'
+	import {compileMotif} from '../lib/Motif.svelte'
+	import {renderTrackAudio} from '../lib/AudioRendering.svelte'
 	import AudioComponent, {createBufferSource} from '../component/AudioComponent.svelte';
 
 	let _audio_event = undefined;
-	let relativeTimeTrack = []
 	let track = []
-
 	let playAudio = false
 	let renderAudio = false
 	let _source = undefined
-	
-	socket.on('audio_event', (audio_event) => {
-		_audio_event = audio_event;
-		playAudio = true
-		console.log('audio recieved')
-	});
 
-	socket.on('motif_compile_complete', (motif) => {
+	function motif2Track(motif) {
 		console.log('yo')
-		relativeTimeTrack = []
+		let relativeTimeTrack = []
 		console.log(motif)
 		motif.forEach((chord) => {
 			if(chord.type == CHORD_TYPE.chord) {
@@ -76,8 +70,8 @@
 				}
 			});
 		}
-		
-	});
+		return track
+	}
 
 	socket.on('motif_compile_error', (e) => {
 		console.log(e)
@@ -109,8 +103,14 @@
 	async function compile_motif() {
 		renderAudio = false
 		playAudio = false
-		await socket.emit('motif_compile', motifString);
-		renderAudio = true
+		let motif = undefined
+		try {
+			motif = await compileMotif(motifString);
+			track = motif2Track(motif)
+			renderAudio = true
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	async function render_audio() {
@@ -119,8 +119,10 @@
 			return
 		}
 		console.log('waiting for audio')
-		await socket.emit('midi_track', { track: track, bpm: bpm });
-		
+
+		_audio_event = await renderTrackAudio(track, bpm)
+		playAudio = true
+		console.log('!!audio recieved!!')
 	}
 
 </script>
