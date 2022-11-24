@@ -10,7 +10,7 @@
 	} from '../lib/Util.svelte';
 	import io from 'socket.io-client';
 	import { chordToChromatic } from '../lib/Validate.svelte';
-	import AudioComponent, {audioCtx} from '../component/AudioComponent.svelte';
+	import AudioComponent, {createBufferSource} from '../component/AudioComponent.svelte';
 
 	let _audio_event = undefined;
 	let relativeTimeTrack = []
@@ -18,10 +18,13 @@
 
 	let playAudio = false
 	let renderAudio = false
+	let _source = undefined
 
 	const socket = io('http://localhost:3000');
 	socket.on('audio_event', (audio_event) => {
 		_audio_event = audio_event;
+		playAudio = true
+		console.log('audio recieved')
 	});
 
 	socket.on('motif_compile_complete', (motif) => {
@@ -95,38 +98,16 @@
 	Am9[3 4 5 6 7 | 3]-(3/2)`
 
 
-	function playBuffer() {
+	function play_sound() {
 		if (!playAudio) {
 			console.log('cant play audio')
 			return
 		}
-		/**
-		 * @type {AudioContext}
-		 */
-		//let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+		
 		if (!_audio_event) {console.log('no audio_event'); return;}
-		let { audio_buffer, sample_rate, num_channels } = _audio_event;
 
-		// audio buffer
-		const myArrayBuffer = audioCtx.createBuffer(
-			num_channels,
-			audio_buffer.length / num_channels,
-			sample_rate
-		);
-
-		// fill audio buffer
-		for (let channel = 0; channel < myArrayBuffer.numberOfChannels; channel++) {
-			const nowBuffering = myArrayBuffer.getChannelData(channel);
-			for (let i = 0; i < myArrayBuffer.length; i++) {
-				nowBuffering[i] = audio_buffer[i * 2 + channel];
-			}
-		}
-
-		// connect to audioCtx
-		const source = audioCtx.createBufferSource();
-		source.buffer = myArrayBuffer;
-		source.connect(audioCtx.destination);
-		source.start();
+		_source = createBufferSource(_audio_event)
+		_source.start()
 	}
 
 	async function compile_motif() {
@@ -143,23 +124,13 @@
 		}
 		console.log('waiting for audio')
 		await socket.emit('midi_track', { track: track, bpm: bpm });
-		playAudio = true
-		console.log('audio recieved')
+		
 	}
 
-	onMount(() => {
-		
-		// socket.emit('midi_track', { track: track, bpm: bpm });
-		console.log('test1')
-		
-		console.log('test2')
-		// socket.emit('midi_track', { track: track, bpm: bpm });
-		console.log('test3')
-	});
 </script>
 
 <h1>Motif</h1>
 <button on:click={compile_motif}>Compile Motif</button>
 <button on:click={render_audio}>Render Audio</button>
-<button on:click={playBuffer}>Play Sound</button>
+<button on:click={play_sound}>Play Sound</button>
 <AudioComponent></AudioComponent>

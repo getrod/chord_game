@@ -2,29 +2,9 @@
     /**
      * @type {AudioContext}
      */
-    export let audioCtx = undefined;
-
-    /**
-     * @param {AudioBuffer} buffer
-     */
-	export function playBuffer(buffer) {
-        if (!audioCtx) return 
-		// fill audio buffer
-		for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-			const nowBuffering = buffer.getChannelData(channel);
-			for (let i = 0; i < buffer.length; i++) {
-				nowBuffering[i] = audio_buffer[i * 2 + channel];
-			}
-		}
-
-		// connect to audioCtx
-		const source = audioCtx.createBufferSource();
-		source.buffer = buffer;
-		source.connect(audioCtx.destination);
-        source.start();
-	}
-
-    export function createBuffer(audioEvent) {
+    export let audioCtx = undefined
+    
+    export function createBufferSource(audioEvent) {
         if (!audioCtx) return undefined
         let { audio_buffer, sample_rate, num_channels } = audioEvent;
 
@@ -35,7 +15,19 @@
 			sample_rate
 		);
 
-        return buffer
+        // fill audio buffer
+		for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+			const nowBuffering = buffer.getChannelData(channel);
+			for (let i = 0; i < buffer.length; i++) {
+				nowBuffering[i] = audio_buffer[i * 2 + channel];
+			}
+		}
+
+        // connect to audioCtx
+		const source = audioCtx.createBufferSource();
+		source.buffer = buffer;
+		source.connect(audioCtx.destination);
+        return source
     }
 </script>
 

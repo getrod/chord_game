@@ -90,7 +90,7 @@ def play_track(midi_events, bpm):
     '''     Render Audio        '''
     s = []
     # Initial silence is 1 second
-    s = numpy.append(s, _fs.get_samples(sample_rate * 1))
+    # s = numpy.append(s, _fs.get_samples(math.floor(sample_rate / 4)))
 
     while len(_midi_events) != 0:
         # find the first tick value that is greater than prev_tick 
