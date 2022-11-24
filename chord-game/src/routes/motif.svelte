@@ -2,14 +2,11 @@
 	import { onMount } from 'svelte';
 	import { BrokenChord, BrokenChordSeq } from '../lib/ChordSequence.svelte';
 	import {
-		Midi,
-		TrackEvent,
 		ChordTrackEvent,
 		BrokenChordSeqTrackEvent,
-		MIDI_MESSAGE, CHORD_TYPE
+		CHORD_TYPE
 	} from '../lib/Util.svelte';
-	import io from 'socket.io-client';
-	import { chordToChromatic } from '../lib/Validate.svelte';
+	import {socket} from '../lib/Socket.svelte'
 	import AudioComponent, {createBufferSource} from '../component/AudioComponent.svelte';
 
 	let _audio_event = undefined;
@@ -19,8 +16,7 @@
 	let playAudio = false
 	let renderAudio = false
 	let _source = undefined
-
-	const socket = io('http://localhost:3000');
+	
 	socket.on('audio_event', (audio_event) => {
 		_audio_event = audio_event;
 		playAudio = true
