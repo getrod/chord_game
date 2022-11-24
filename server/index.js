@@ -36,6 +36,20 @@ io.on('connection', (socket) => {
   socket.on('audio_event', (audio_event) => {
     io.emit('audio_event', audio_event);
   });
+
+  // MOTIF
+
+  socket.on('motif_compile', (motif_string) => {
+    io.emit('motif_compile', motif_string);
+  });
+
+  socket.on('motif_compile_complete', (motif) => {
+    io.emit('motif_compile_complete', motif);
+  });
+
+  socket.on('motif_compile_error', (e) => {
+    io.emit('motif_compile_error', e);
+  });
 });
 
 server.listen(3000, () => {

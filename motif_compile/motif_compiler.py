@@ -49,7 +49,6 @@ base_keys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 symbols = ['b', '#']
 
 chord_names = ['maj', 'm', 'sus2', 'sus4', 'maj7', 'm7', 'maj9', 'm9']
-chord_ext = ['add2', 'add4']
 
 ''' returns the parsed key and ending search position'''
 def parse_key(s: str, start: int) -> tuple[str, int]:
@@ -160,6 +159,10 @@ chord_tree = ChordNameTree()
 def parse_chord(s: str, start: int, use_space=False) -> tuple[str, int]:
     return chord_tree.parse_chord(s, start, use_space)
 
+class CHORD_TYPE():
+    CHORD = 'chord'
+    BROKEN_CHORD = 'broken_chord'
+
 class Chord:
     def __init__(self, key, chord_type, notes,  duration, octave = None):
         self.key = key
@@ -170,6 +173,16 @@ class Chord:
     
     def __str__(self) -> str:
         return f'Chord[key: {self.key}, chord: {self.chord_type}, notes: {self.notes}, duration: {self.duration}, octave: {self.octave}]'
+    
+    def toJSON(self):
+        return {
+            'type': CHORD_TYPE.CHORD,
+            'key': self.key, 
+            'chord_type': self.chord_type,
+            'notes': self.notes,
+            'duration': self.duration,
+            'octave': self.octave
+        }
 
 class BrokenChord:
     def __init__(self, key, chord_type, note_seq, duration_seq, octave = None):
@@ -181,6 +194,16 @@ class BrokenChord:
     
     def __str__(self) -> str:
         return f'BrokenChord[key: {self.key}, chord: {self.chord_type}, note_seq: {self.note_seq}, duration_seq: {self.duration_seq}, octave: {self.octave}]'
+    
+    def toJSON(self):
+        return {
+            'type': str(CHORD_TYPE.BROKEN_CHORD),
+            'key': self.key, 
+            'chord_type': self.chord_type,
+            'note_seq': self.note_seq,
+            'duration_seq': self.duration_seq,
+            'octave': self.octave
+        }
 
 def parse_keychord(keychord: str, strict = True):
     key, kpos = parse_key(keychord, 0)
@@ -362,3 +385,9 @@ def parse_motif(s: str):
         chord = parse_chord_motif(token, 0, True)
         motif.append(chord)
     return motif
+
+def motif_to_json(motif):
+    motif_json = []
+    for chord in motif:
+        motif_json.append(chord.toJSON())
+    return motif_json

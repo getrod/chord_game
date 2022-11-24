@@ -8,6 +8,8 @@ import math
 import time
 import sys
 from rtmidi import (midiutil, MidiIn, midiconstants)
+from motif_compile.motif_compiler import parse_motif, motif_to_json
+import threading 
 
 
 pa = pyaudio.PyAudio()
@@ -21,6 +23,7 @@ strm = pa.open(
 
 sio = socketio.Client()
 fs = fluidsynth.Synth()
+lock = threading.Lock()
 
 def start_synth():
     fs.start()
@@ -35,6 +38,7 @@ def play_midi(midi):
         fs.noteoff(0, midi['note'])     
 
 def play_track(midi_events, bpm):
+    
     _fs = fluidsynth.Synth()
     dir = 'sound_fonts'
     sfid = _fs.sfload(f'{dir}/Nice-Steinway-Lite-v3.0.sf2')
@@ -134,6 +138,7 @@ def play_track(midi_events, bpm):
         'sample_rate': sample_rate, 
         'num_channels': channels 
     })
+    
 
 def midi_callback(event, data=None):
     message, deltatime = event
@@ -175,7 +180,27 @@ def start():
 
     @sio.on('midi_track')
     def on_midi_track(track):
+        print('called!')
+        lock.acquire()
         play_track(track['track'], track['bpm'])
+        lock.release()
+
+    ### motif section
+
+    @sio.on('motif_compile')
+    def on_motif_compile(motif_string):
+        print('yo Im being compiled')
+        # print(motif_string)
+        try:
+            motif = parse_motif(motif_string)
+            print('in try catch being parsed')
+            motif_json = motif_to_json(motif)
+            print('about to be sent with: "motif_compile_complete"')
+            sio.emit('motif_compile_complete', motif_json)
+        except Exception as e:
+            print(e)
+            sio.emit('motif_compile_error', str(e))   
+
 
 
     ''' open midi input '''

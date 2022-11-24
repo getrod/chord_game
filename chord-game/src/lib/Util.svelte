@@ -12,6 +12,11 @@
 		off: 'note_off'
 	};
 
+	export const CHORD_TYPE = {
+		chord: 'chord',
+		broken: 'broken_chord'
+	}
+
 	export function Midi(midi_event, note, velocity) {
 		return {
 			midi_event: midi_event,
@@ -47,6 +52,7 @@
 			events.push(TrackEvent(startBeat + duration, Midi(MIDI_MESSAGE.off, note, 0)));
 		});
 		return {
+			type: CHORD_TYPE.chord,
 			startBeat: startBeat,
 			duration: duration,
 			events: events,
@@ -73,6 +79,12 @@
 			));
 		});
 
-		return chordEvents;
+		return {
+			type: CHORD_TYPE.broken,
+			brokenChordSeq: brokenChordSeq,
+			durationSeq: durations,
+			octave: octave,
+			chordEvents: chordEvents,
+		};
 	}
 </script>
